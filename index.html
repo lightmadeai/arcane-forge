@@ -1,0 +1,1344 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0f0d0a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Arcane Forge">
+<meta name="description" content="Craft magical items for D&D â€” weapons, rings, potions and more.">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<title>Arcane Forge</title>
+<script>
+  // Register service worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () =>
+      navigator.serviceWorker.register('./sw.js').catch(() => {})
+    );
+  }
+  // Lazy-load html2canvas on first image-export request
+  function loadHtml2Canvas() {
+    return new Promise((resolve, reject) => {
+      if (window.html2canvas) return resolve(window.html2canvas);
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+      s.onload  = () => resolve(window.html2canvas);
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+</script>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- HEADER -->
+  <header class="app-header">
+    <span class="header-icon">âš—ï¸</span>
+    <div>
+      <div class="header-title">Arcane Forge</div>
+      <div class="header-subtitle">D&D Item Creator</div>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" onclick="openLibrary()" title="My Items">ðŸ“š</button>
+      <button class="icon-btn" onclick="randomizeItem()" title="Randomize">ðŸŽ²</button>
+      <button class="icon-btn" onclick="resetForm()" title="Reset">â†º</button>
+    </div>
+  </header>
+
+  <!-- PANELS -->
+  <div class="panels-wrap">
+  <div class="panels-track" id="panels-track">
+
+    <!-- â”€â”€ BUILD â”€â”€ -->
+    <div class="panel" id="panel-build">
+
+      <!-- Identity -->
+      <div class="card">
+        <div class="card-head" onclick="toggleCard(this)">
+          <span class="card-head-icon">âœ¦</span>
+          <span class="card-head-title">Item Identity</span>
+          <span class="card-chevron">â–¾</span>
+        </div>
+        <div class="card-body">
+          <div class="field">
+            <span class="field-label">Item Name</span>
+            <div class="name-row">
+              <input type="text" id="itemName" placeholder="e.g. Flamebrand of the Fallen King" oninput="updateCardDebounced()">
+              <button class="btn btn-outline btn-sm" onclick="generateName()">ðŸŽ²</button>
+            </div>
+          </div>
+          <div class="row-2">
+            <div class="field">
+              <span class="field-label">Creator / Origin</span>
+              <input type="text" id="itemCreator" placeholder="e.g. Forged by Moradin" oninput="updateCardDebounced()">
+            </div>
+            <div class="field">
+              <span class="field-label">Value (gp)</span>
+              <input type="text" id="itemValue" placeholder="e.g. 5,000 gp" oninput="updateCardDebounced()">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Type -->
+      <div class="card">
+        <div class="card-head" onclick="toggleCard(this)">
+          <span class="card-head-icon">âš”</span>
+          <span class="card-head-title">Item Type</span>
+          <span class="card-chevron">â–¾</span>
+        </div>
+        <div class="card-body">
+          <div class="type-grid" id="typeGrid"></div>
+
+          <!-- Weapon -->
+          <div class="cond-section" id="weaponFields">
+            <div class="field">
+              <span class="field-label">Weapon Subtype</span>
+              <select id="weaponSubtype" onchange="updateCard()">
+                <option>Longsword</option><option>Shortsword</option><option>Greatsword</option>
+                <option>Rapier</option><option>Dagger</option><option>Handaxe</option>
+                <option>Battleaxe</option><option>Greataxe</option><option>Warhammer</option>
+                <option>Maul</option><option>Spear</option><option>Quarterstaff</option>
+                <option>Shortbow</option><option>Longbow</option><option>Hand Crossbow</option>
+                <option>Heavy Crossbow</option><option>Flail</option><option>Mace</option><option>Other</option>
+              </select>
+            </div>
+            <div class="row-3" style="margin-top:8px">
+              <div class="field">
+                <span class="field-label">Damage</span>
+                <select id="damageDice" onchange="updateCard()">
+                  <option>1d4</option><option>1d6</option><option selected>1d8</option>
+                  <option>1d10</option><option>1d12</option><option>2d6</option><option>2d8</option>
+                </select>
+              </div>
+              <div class="field">
+                <span class="field-label">Type</span>
+                <select id="damageType" onchange="updateCard()">
+                  <option>Slashing</option><option>Piercing</option><option>Bludgeoning</option>
+                  <option>Fire</option><option>Cold</option><option>Lightning</option>
+                  <option>Thunder</option><option>Acid</option><option>Poison</option>
+                  <option>Necrotic</option><option>Radiant</option><option>Psychic</option><option>Force</option>
+                </select>
+              </div>
+              <div class="field">
+                <span class="field-label">Bonus</span>
+                <select id="attackBonus" onchange="updateCard()">
+                  <option value="">None</option><option>+1</option><option>+2</option><option>+3</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Armor -->
+          <div class="cond-section" id="armorFields">
+            <div class="field">
+              <span class="field-label">Armor Subtype</span>
+              <select id="armorSubtype" onchange="updateCard()">
+                <option>Leather Armor</option><option>Studded Leather</option><option>Hide Armor</option>
+                <option>Chain Shirt</option><option>Scale Mail</option><option>Breastplate</option>
+                <option>Half Plate</option><option>Chain Mail</option><option>Splint</option><option>Plate</option>
+              </select>
+            </div>
+            <div class="row-2" style="margin-top:8px">
+              <div class="field"><span class="field-label">Base AC</span><input type="number" id="baseAC" value="14" min="10" max="20" oninput="updateCardDebounced()"></div>
+              <div class="field"><span class="field-label">AC Bonus</span><select id="acBonus" onchange="updateCard()"><option value="">None</option><option>+1</option><option>+2</option><option>+3</option></select></div>
+            </div>
+          </div>
+
+          <!-- Potion -->
+          <div class="cond-section" id="potionFields">
+            <div class="row-2">
+              <div class="field"><span class="field-label">Color</span><input type="text" id="potionColor" placeholder="e.g. Crimson glow" oninput="updateCardDebounced()"></div>
+              <div class="field"><span class="field-label">Doses</span><input type="number" id="potionDoses" value="1" min="1" max="10" oninput="updateCardDebounced()"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rarity -->
+      <div class="card">
+        <div class="card-head" onclick="toggleCard(this)">
+          <span class="card-head-icon">âœ¦</span>
+          <span class="card-head-title">Rarity & Attunement</span>
+          <span class="card-chevron">â–¾</span>
+        </div>
+        <div class="card-body">
+          <div class="field">
+            <span class="field-label">Rarity</span>
+            <div class="rarity-grid" id="rarityPicker"></div>
+          </div>
+          <div class="toggle-row">
+            <span class="toggle-label">Requires Attunement</span>
+            <label class="toggle"><input type="checkbox" id="attuneToggle" onchange="toggleAttune()"><span class="slider"></span></label>
+          </div>
+          <div id="attuneClassField" style="display:none">
+            <div class="field">
+              <span class="field-label">Restriction (optional)</span>
+              <input type="text" id="attuneClass" placeholder="e.g. by a wizard" oninput="updateCardDebounced()">
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /panel-build -->
+
+    <!-- â”€â”€ POWERS â”€â”€ -->
+    <div class="panel" id="panel-powers">
+
+      <div class="card">
+        <div class="card-head" onclick="toggleCard(this)">
+          <span class="card-head-icon">âœ¨</span>
+          <span class="card-head-title">Magical Properties</span>
+          <span class="card-chevron">â–¾</span>
+        </div>
+        <div class="card-body">
+          <div class="props-list" id="propertiesList"></div>
+          <button class="btn btn-ghost" style="margin-top:4px" onclick="addProperty()">+ Add Property</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head" onclick="toggleCard(this)">
+          <span class="card-head-icon">âš¡</span>
+          <span class="card-head-title">Quick Suggestions</span>
+          <span class="card-chevron">â–¾</span>
+        </div>
+        <div class="card-body">
+          <div class="suggestions" id="suggestions"></div>
+        </div>
+      </div>
+
+    </div><!-- /panel-powers -->
+
+    <!-- â”€â”€ VISUAL â”€â”€ -->
+    <div class="panel" id="panel-visual">
+
+      <div class="card">
+        <div class="card-head" onclick="toggleCard(this)">
+          <span class="card-head-icon">ðŸŽ¨</span>
+          <span class="card-head-title">Visual Appearance</span>
+          <span class="card-chevron">â–¾</span>
+        </div>
+        <div class="card-body">
+          <div class="visual-canvas-wrap">
+            <div id="visualCanvas"></div>
+          </div>
+          <div class="pickers-list" id="componentPickers"></div>
+        </div>
+      </div>
+
+    </div><!-- /panel-visual -->
+
+    <!-- â”€â”€ LORE â”€â”€ -->
+    <div class="panel" id="panel-lore">
+
+      <div class="card">
+        <div class="card-head" onclick="toggleCard(this)">
+          <span class="card-head-icon">ðŸ“–</span>
+          <span class="card-head-title">Description & Lore</span>
+          <span class="card-chevron">â–¾</span>
+        </div>
+        <div class="card-body">
+          <div class="field">
+            <span class="field-label">Appearance</span>
+            <textarea id="itemDesc" rows="3" placeholder="How does the item look, feel, smell? What aura does it radiate?" oninput="updateCardDebounced()"></textarea>
+          </div>
+          <div class="field">
+            <span class="field-label">History & Lore</span>
+            <textarea id="itemLore" rows="4" placeholder="The legend behind this item â€” its creator, past wielders..." oninput="updateCardDebounced()"></textarea>
+          </div>
+          <div class="field">
+            <span class="field-label">Curse (if any)</span>
+            <textarea id="itemCurse" rows="2" placeholder="Any curse or drawback..." oninput="updateCardDebounced()"></textarea>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /panel-lore -->
+
+    <!-- â”€â”€ PREVIEW â”€â”€ -->
+    <div class="panel" id="panel-preview">
+
+      <!-- Item Card -->
+      <div class="item-card" id="itemCard">
+        <div class="card-header">
+          <div id="cardArtArea" class="card-art-area" style="display:none"></div>
+          <div class="card-name" id="cardName">Unnamed Item</div>
+          <div class="card-subtitle">
+            <span id="cardTypeLabel">Wondrous Item</span>
+            <span id="cardRarityBadge" class="card-rarity-badge" style="display:none"></span>
+          </div>
+          <div class="card-type-icon" id="cardIcon">ðŸ”®</div>
+        </div>
+        <div class="card-body">
+          <div id="cardStatBlock" class="card-stat-block" style="display:none"></div>
+          <div id="cardAttunement" class="card-attune" style="display:none"></div>
+          <div id="cardProperties"></div>
+          <div id="cardDesc" style="display:none" class="card-lore"></div>
+          <div id="cardLoreDivider" class="card-divider" style="display:none"></div>
+          <div id="cardLore" style="display:none" class="card-lore"></div>
+          <div id="cardCurse" style="display:none"></div>
+        </div>
+        <div class="card-footer">
+          <span id="cardValue"></span>
+          <span id="cardCreator"></span>
+        </div>
+      </div>
+
+      <!-- Summary chips (flat, subordinate) -->
+      <div class="preview-meta">
+        <div class="summary-chips" id="summaryChips"><span class="chip">Fill in the form to see a summary</span></div>
+      </div>
+
+      <!-- Export actions (flat, subordinate) -->
+      <div class="preview-actions">
+        <button class="btn btn-gold btn-img" id="btnShareImg" onclick="exportAsImage()">ðŸ“¤ Share</button>
+        <button class="btn btn-outline" onclick="downloadTxt()">ðŸ’¾ Save</button>
+      </div>
+
+    </div><!-- /panel-preview -->
+
+  </div><!-- /panels-track -->
+  </div><!-- /panels-wrap -->
+
+  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+       AD BANNER
+       Once your AdSense account is approved:
+       1. Add this in <head>:
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+       2. Replace the .ad-placeholder div below with your <ins> ad unit, e.g.:
+          <ins class="adsbygoogle"
+               style="display:inline-block;width:320px;height:50px"
+               data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+               data-ad-slot="XXXXXXXXXX"></ins>
+          <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+       â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+  <div class="ad-banner" id="adBanner">
+    <span class="ad-label">Advertisement</span>
+    <div class="ad-placeholder">Ad space Â· 320 Ã— 50</div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button class="nav-tab active" id="tab-build" onclick="switchTab('build')">
+      <span class="ni">âš”ï¸</span><span class="nl">Build</span>
+    </button>
+    <button class="nav-tab" id="tab-powers" onclick="switchTab('powers')">
+      <span class="ni">âœ¨</span><span class="nl">Powers</span>
+    </button>
+    <button class="nav-tab" id="tab-visual" onclick="switchTab('visual')">
+      <span class="ni">ðŸŽ¨</span><span class="nl">Visual</span>
+    </button>
+    <button class="nav-tab" id="tab-lore" onclick="switchTab('lore')">
+      <span class="ni">ðŸ“–</span><span class="nl">Lore</span>
+    </button>
+    <button class="nav-tab" id="tab-preview" onclick="switchTab('preview')">
+      <span class="ni">ðŸ‘ï¸</span><span class="nl">Preview</span>
+    </button>
+  </nav>
+
+</div><!-- /app-shell -->
+
+<!-- â”€â”€ ONBOARDING MODAL (first launch only) â”€â”€ -->
+<div class="onboard-backdrop" id="onboardBackdrop">
+  <div class="onboard-sheet">
+    <div class="onboard-logo">âš—ï¸</div>
+    <div class="onboard-title">Arcane Forge</div>
+    <div class="onboard-sub">Craft legendary magical items for your D&amp;D campaign</div>
+    <div class="onboard-tips">
+      <div class="onboard-tip">
+        <div class="onboard-tip-icon">ðŸŽ²</div>
+        <div class="onboard-tip-text">
+          <div class="onboard-tip-title">Need Inspiration?</div>
+          <div class="onboard-tip-desc">Tap the dice button to instantly generate a complete random magical item â€” name, powers, lore, and artwork.</div>
+        </div>
+      </div>
+      <div class="onboard-tip">
+        <div class="onboard-tip-icon">âš”ï¸</div>
+        <div class="onboard-tip-text">
+          <div class="onboard-tip-title">Build From Scratch</div>
+          <div class="onboard-tip-desc">Use the five tabs to craft every detail â€” type, powers, appearance, lore, and a shareable item card.</div>
+        </div>
+      </div>
+      <div class="onboard-tip">
+        <div class="onboard-tip-icon">ðŸ“š</div>
+        <div class="onboard-tip-text">
+          <div class="onboard-tip-title">Save Your Collection</div>
+          <div class="onboard-tip-desc">Tap the book icon to save items to your library and load them anytime â€” even offline.</div>
+        </div>
+      </div>
+    </div>
+    <button class="onboard-btn" onclick="dismissOnboarding()">Begin Forging âš”ï¸</button>
+  </div>
+</div>
+
+<!-- â”€â”€ LIBRARY BOTTOM SHEET â”€â”€ -->
+<div class="sheet-backdrop" id="libraryBackdrop" onclick="closeLibrary()"></div>
+<div class="bottom-sheet" id="librarySheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <span class="sheet-title">ðŸ“š My Items</span>
+    <button class="sheet-save-btn" onclick="saveToLibrary()">ðŸ’¾ Save Current</button>
+  </div>
+  <div class="sheet-body" id="libraryList">
+    <div class="sheet-empty">No saved items yet.<br>Tap "Save Current" to save this item.</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// NAVIGATION
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+const PANEL_ORDER = ['build', 'powers', 'visual', 'lore', 'preview'];
+function switchTab(name) {
+  const idx = PANEL_ORDER.indexOf(name);
+  if (idx === -1) return;
+  // Slide the track so the target panel is fully in view
+  document.getElementById('panels-track').style.transform = `translateX(-${idx * 20}%)`;
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  if (navigator.vibrate) navigator.vibrate(10);
+}
+
+function toggleCard(head) {
+  head.closest('.card').classList.toggle('collapsed');
+}
+
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// DATA
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+const ITEM_TYPES = [
+  { id:'weapon',  label:'Weapon',   icon:'âš”ï¸' },
+  { id:'armor',   label:'Armor',    icon:`<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l2.5 4v5c0 4-2.5 7.5-5.5 8.5-3-1-5.5-4.5-5.5-8.5V7z"/><path d="M5.5 7c-2 1-2.5 3-1.5 5"/><path d="M18.5 7c2 1 2.5 3 1.5 5"/><path d="M9.5 4c.5-.8 4.5-.8 5 0" stroke-width="1.2" opacity=".7"/></svg>` },
+  { id:'wand',    label:'Wand',     icon:'ðŸª„' },
+  { id:'staff',   label:'Staff',    icon:`<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 21.5c2-4 5.5-9 10-16"/><ellipse cx="17" cy="4" rx="2.2" ry="1.4" fill="currentColor" stroke="none"/><path d="M8.5 17.5c.5-.9 1.8-.6 1.4.8" stroke-width="1.3"/><path d="M11.5 12c.5-.9 1.8-.6 1.4.8" stroke-width="1.3"/></svg>` },
+  { id:'ring',    label:'Ring',     icon:'ðŸ’' },
+  { id:'amulet',  label:'Amulet',   icon:'ðŸ“¿' },
+  { id:'cloak',   label:'Cloak',    icon:'ðŸª½' },
+  { id:'boots',   label:'Boots',    icon:'ðŸ‘¢' },
+  { id:'gloves',  label:'Gloves',   icon:'ðŸ§¤' },
+  { id:'helmet',  label:'Helmet',   icon:`<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13V9a7 7 0 0 1 14 0v4"/><path d="M4 13h16v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-5z"/><line x1="7" y1="16.5" x2="17" y2="16.5"/><line x1="4" y1="13" x2="20" y2="13"/></svg>` },
+  { id:'shield',  label:'Shield',   icon:'ðŸ›¡' },
+  { id:'potion',  label:'Potion',   icon:'âš—ï¸' },
+  { id:'scroll',  label:'Scroll',   icon:'ðŸ“œ' },
+  { id:'orb',     label:'Orb',      icon:'ðŸ”®' },
+  { id:'rod',     label:'Rod',      icon:'ðŸªˆ' },
+  { id:'tome',    label:'Tome',     icon:'ðŸ“–' },
+  { id:'gem',     label:'Gem',      icon:'ðŸ’Ž' },
+  { id:'misc',    label:'Wondrous', icon:'âœ¨' },
+  { id:'bag',     label:'Bag',      icon:'ðŸŽ’' },
+  { id:'arrow',   label:'Arrow',    icon:'ðŸ¹' },
+];
+
+const RARITIES = ['Common','Uncommon','Rare','Very Rare','Legendary','Artifact'];
+const RARITY_COLORS = {
+  'Common':'#aaaaaa','Uncommon':'#1eff00','Rare':'#0070ff',
+  'Very Rare':'#a335ee','Legendary':'#ff8000','Artifact':'#e6cc80'
+};
+
+const PROP_SUGGESTIONS = [
+  { name:'+1 to Attack & Damage', desc:'You have a +1 bonus to attack and damage rolls made with this weapon.', type:'passive' },
+  { name:'Fiery Burst', desc:'On a hit, the target takes an additional 1d6 fire damage.', type:'active' },
+  { name:'Speak with Beasts', desc:'While holding this item, you can cast Speak with Animals at will.', type:'passive' },
+  { name:'Darkvision', desc:'While wearing, you gain darkvision out to 60 feet.', type:'passive' },
+  { name:'+2 Bonus to AC', desc:'While wearing this item, you have a +2 bonus to AC.', type:'passive' },
+  { name:'Feather Fall', desc:'When you fall while wearing this item, you descend at 60 feet/round and take no damage.', type:'passive' },
+  { name:'Fly (3 charges)', desc:'Expend 1 charge as a bonus action to gain a flying speed of 60 feet for 10 minutes.', type:'charges' },
+  { name:'Absorb Elements', desc:'When you take elemental damage you can use your reaction to absorb it.', type:'active' },
+  { name:'True Sight', desc:'While wearing, you have truesight within 10 feet.', type:'passive' },
+  { name:'Advantage on Saves', desc:'You have advantage on saving throws against spells and magical effects.', type:'passive' },
+  { name:'Spell Storing', desc:'This item can store up to 5 levels worth of spells cast into it.', type:'charges' },
+  { name:'Telepathy', desc:'While holding, you can communicate telepathically with any creature you can see within 60 feet.', type:'passive' },
+];
+
+const NAME_PREFIXES = ['Flame','Shadow','Frost','Storm','Blood','Soul','Star','Moon','Sun','Void','Thunder','Iron','Silver','Gold','Arcane','Eldritch','Ancient','Cursed','Blessed','Rune'];
+const NAME_MIDDLES = ['brand','bane','weave','forge','song','edge','heart','fang','guard','ward','rune','bond','veil','gate','call'];
+const NAME_SUFFIXES = [' of the Fallen King',' of Eternal Night',' of the Wild Hunt',' of Sundered Realms',' of the Arcane Conclave',' of Ancient Dragons',' of the Dead God',' of Moonrise',' of Starfall','','','','',''];
+const LORE_TEMPLATES = [
+  'Forged in the fires of Mount Ashgar by {creator}, this item has passed through the hands of three kings and survived the Cataclysm of the Fifth Age.',
+  'Recovered from the ruins of the Obsidian Tower, scholars believe this item was crafted by {creator} during the War of Mages.',
+  'According to the Tome of Forgotten Relics, {creator} created this as a gift to a mortal champion whose fate remains unknown.',
+];
+const CREATORS = ['Moradin the All-Father','the archmage Valdris Sorn','the witch Eyra of the Black Moon','the dwarven smith Dolgrin Ironweave','an unknown elven artificer','the lich Seraveth'];
+
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// STATE
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+let state = { type:'misc', rarity:'Rare', attune:false, properties:[], visual:{} };
+let propIdCounter = 0;
+
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// INIT
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function init() {
+  // Type grid
+  const grid = document.getElementById('typeGrid');
+  ITEM_TYPES.forEach(t => {
+    const b = document.createElement('button');
+    b.className = 'type-btn' + (t.id === state.type ? ' active' : '');
+    b.dataset.type = t.id;
+    b.innerHTML = `<span class="ti">${t.icon}</span><span class="tl">${t.label}</span>`;
+    b.onclick = () => selectType(t.id);
+    grid.appendChild(b);
+  });
+
+  // Rarity
+  const rp = document.getElementById('rarityPicker');
+  RARITIES.forEach(r => {
+    const b = document.createElement('button');
+    b.className = 'rarity-btn' + (r === state.rarity ? ' active' : '');
+    b.dataset.rarity = r;
+    b.textContent = r;
+    b.onclick = () => selectRarity(r);
+    rp.appendChild(b);
+  });
+
+  // Suggestions
+  const sug = document.getElementById('suggestions');
+  PROP_SUGGESTIONS.forEach(p => {
+    const t = document.createElement('span');
+    t.className = 'sug-tag';
+    t.textContent = p.name;
+    t.onclick = () => { addPropertyFromSuggestion(p); switchTab('powers'); };
+    sug.appendChild(t);
+  });
+
+  renderProperties();
+  updateCard();
+  initVisual(state.type);
+
+  // Restore last autosave
+  try {
+    const saved = localStorage.getItem('arcane-forge-autosave');
+    if (saved) restoreState(JSON.parse(saved));
+  } catch(e) {}
+
+  renderLibrary();
+
+  // Show onboarding on first ever launch
+  try {
+    if (!localStorage.getItem('arcane-forge-onboarded')) showOnboarding();
+  } catch(e) { /* storage blocked â€” skip onboarding */ }
+}
+
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// TYPE & RARITY
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function selectType(id) {
+  state.type = id;
+  document.querySelectorAll('.type-btn').forEach(b => b.classList.toggle('active', b.dataset.type === id));
+  document.getElementById('weaponFields').classList.toggle('visible', id === 'weapon');
+  document.getElementById('armorFields').classList.toggle('visible', id === 'armor');
+  document.getElementById('potionFields').classList.toggle('visible', id === 'potion');
+  initVisual(id);
+  updateCard();
+}
+
+function selectRarity(r) {
+  state.rarity = r;
+  document.querySelectorAll('.rarity-btn').forEach(b => b.classList.toggle('active', b.dataset.rarity === r));
+  updateCard();
+}
+
+function toggleAttune() {
+  state.attune = document.getElementById('attuneToggle').checked;
+  document.getElementById('attuneClassField').style.display = state.attune ? '' : 'none';
+  updateCard();
+}
+
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// PROPERTIES
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function addProperty(name='', desc='', type='passive', charges=3, recharge='Dawn') {
+  const id = ++propIdCounter;
+  state.properties.push({ id, name, desc, type, charges, recharge });
+  renderProperties(); updateCard();
+}
+function addPropertyFromSuggestion(p) { addProperty(p.name, p.desc, p.type); }
+function deleteProperty(id) {
+  if (!confirm('Remove this property?')) return;
+  state.properties = state.properties.filter(p => p.id !== id);
+  renderProperties(); updateCard();
+}
+function cycleType(id) {
+  const types = ['passive','active','charges','cursed'];
+  const p = state.properties.find(p => p.id === id);
+  if (p) { p.type = types[(types.indexOf(p.type)+1)%types.length]; renderProperties(); updateCard(); }
+}
+function updatePropName(id,v)    { const p=state.properties.find(p=>p.id===id); if(p){p.name=v;    updateCardDebounced();} }
+function updatePropDesc(id,v)    { const p=state.properties.find(p=>p.id===id); if(p){p.desc=v;    updateCardDebounced();} }
+function updatePropCharges(id,v) { const p=state.properties.find(p=>p.id===id); if(p){p.charges=parseInt(v)||1; updateCardDebounced();} }
+function updatePropRecharge(id,v){ const p=state.properties.find(p=>p.id===id); if(p){p.recharge=v;updateCard();} }
+
+function renderProperties() {
+  const list = document.getElementById('propertiesList');
+  if (!state.properties.length) {
+    list.innerHTML = '<div class="empty-props">No properties yet.<br>Tap "+ Add Property" or pick a suggestion.</div>';
+    return;
+  }
+  list.innerHTML = '';
+  state.properties.forEach(prop => {
+    const d = document.createElement('div');
+    d.className = 'prop-item';
+    d.innerHTML = `
+      <div class="prop-item-head">
+        <input type="text" value="${esc(prop.name)}" placeholder="Property name..."
+          oninput="updatePropName(${prop.id},this.value)">
+        <span class="prop-type-tag ${prop.type}" onclick="cycleType(${prop.id})">${prop.type.toUpperCase()}</span>
+        <button class="del-btn" onclick="deleteProperty(${prop.id})">âœ•</button>
+      </div>
+      <textarea class="prop-desc" rows="2" placeholder="Describe this property..."
+        oninput="updatePropDesc(${prop.id},this.value)">${esc(prop.desc)}</textarea>
+      ${prop.type==='charges'?`
+      <div class="charges-row">
+        <div class="field"><span class="field-label">Max Charges</span>
+          <input type="number" min="1" max="20" value="${prop.charges}" oninput="updatePropCharges(${prop.id},this.value)"></div>
+        <div class="field"><span class="field-label">Recharge</span>
+          <select onchange="updatePropRecharge(${prop.id},this.value)">
+            ${['Dawn','Dusk','Midnight','Short Rest','Long Rest','1d6+1 at dawn','Never'].map(r=>`<option${r===prop.recharge?' selected':''}>${r}</option>`).join('')}
+          </select></div>
+      </div>`:''}
+    `;
+    list.appendChild(d);
+  });
+}
+
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// CARD UPDATE
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function getTypeInfo() { return ITEM_TYPES.find(t=>t.id===state.type)||ITEM_TYPES[ITEM_TYPES.length-1]; }
+
+function getSubtitle() {
+  const t = state.type;
+  if (t==='weapon') return `Weapon (${esc(document.getElementById('weaponSubtype')?.value||'Weapon')})`;
+  if (t==='armor')  return esc(document.getElementById('armorSubtype')?.value||'Armor');
+  if (t==='potion') return 'Potion';
+  if (t==='scroll') return 'Scroll';
+  if (t==='ring')   return 'Ring';
+  if (t==='wand')   return 'Wand';
+  if (t==='staff')  return 'Staff, Weapon (quarterstaff)';
+  if (t==='rod')    return 'Rod';
+  if (['amulet','cloak','boots','gloves','helmet','orb','tome','gem','bag','arrow'].includes(t))
+    return `Wondrous Item (${getTypeInfo().label})`;
+  if (t==='shield') return 'Armor (Shield)';
+  return 'Wondrous Item';
+}
+
+function buildStats() {
+  const stats = [];
+  if (state.type==='weapon') {
+    const d=document.getElementById('damageDice')?.value, dt=document.getElementById('damageType')?.value, b=document.getElementById('attackBonus')?.value;
+    if(d) stats.push({val:d,lbl:dt||'Damage'});
+    if(b) stats.push({val:b,lbl:'Hit & Dmg'});
+  }
+  if (state.type==='armor'||state.type==='shield') {
+    const ac=document.getElementById('baseAC')?.value, b=document.getElementById('acBonus')?.value;
+    if(ac) stats.push({val:ac+(b||''),lbl:'AC'});
+  }
+  if (state.type==='potion') {
+    const doses=document.getElementById('potionDoses')?.value;
+    if(doses) stats.push({val:doses,lbl:'Doses'});
+  }
+  state.properties.filter(p=>p.type==='charges').forEach(p=>{
+    if(p.charges) stats.push({val:p.charges,lbl:'Charges'});
+  });
+  return stats;
+}
+
+// Debounced version for text input handlers â€” avoids re-rendering on every keystroke
+let _updateCardTimer;
+function updateCardDebounced() {
+  clearTimeout(_updateCardTimer);
+  _updateCardTimer = setTimeout(updateCard, 180);
+}
+
+function updateCard() {
+  const name    = document.getElementById('itemName').value.trim() || 'Unnamed Item';
+  const creator = document.getElementById('itemCreator').value.trim();
+  const value   = document.getElementById('itemValue').value.trim();
+  const desc    = document.getElementById('itemDesc').value.trim();
+  const lore    = document.getElementById('itemLore').value.trim();
+  const curse   = document.getElementById('itemCurse').value.trim();
+  const atCls   = document.getElementById('attuneClass').value.trim();
+  const ti      = getTypeInfo();
+  const stats   = buildStats();
+
+  document.getElementById('cardName').textContent = name;
+  // Use innerHTML so SVG icon strings render as markup, not raw text
+  document.getElementById('cardIcon').innerHTML = ti.icon;
+  document.getElementById('cardTypeLabel').textContent = getSubtitle();
+
+  const badge = document.getElementById('cardRarityBadge');
+  badge.textContent = state.rarity;
+  badge.style.display = '';
+  badge.style.color = RARITY_COLORS[state.rarity];
+  badge.style.borderColor = RARITY_COLORS[state.rarity]+'66';
+  badge.style.background  = RARITY_COLORS[state.rarity]+'22';
+
+  const sb = document.getElementById('cardStatBlock');
+  if (stats.length) {
+    sb.style.display='flex';
+    sb.innerHTML = stats.map(s=>`<div class="card-stat"><span class="sv">${s.val}</span><span class="sl">${s.lbl}</span></div>`).join('<div style="width:1px;background:rgba(139,100,30,0.3)"></div>');
+  } else { sb.style.display='none'; }
+
+  const ae = document.getElementById('cardAttunement');
+  if (state.attune) { ae.style.display=''; ae.textContent = atCls?`Requires Attunement ${atCls}`:'Requires Attunement'; }
+  else ae.style.display='none';
+
+  const pe = document.getElementById('cardProperties');
+  if (!state.properties.length) {
+    pe.innerHTML='<p style="font-style:italic;color:#7a5a30;font-size:12px;text-align:center;padding:6px">No properties defined</p>';
+  } else {
+    pe.innerHTML = state.properties.filter(p=>p.name||p.desc).map(p=>`
+      <div class="card-prop">
+        <span class="card-prop-name">${esc(p.name||'Property')}</span>
+        <span class="card-prop-type"> (${p.type}${p.type==='charges'?` â€” ${p.charges} charges, ${p.recharge}`:''})</span>
+        <div class="card-prop-desc">${esc(p.desc)}</div>
+      </div><div class="card-divider"></div>`).join('');
+  }
+
+  const de=document.getElementById('cardDesc'); if(desc){de.style.display='';de.textContent=desc;}else de.style.display='none';
+  const le=document.getElementById('cardLore'),ld=document.getElementById('cardLoreDivider');
+  if(lore){le.style.display='';ld.style.display='';le.textContent='"'+lore+'"';}else{le.style.display='none';ld.style.display='none';}
+  const ce=document.getElementById('cardCurse');
+  if(curse){ce.style.display='';ce.innerHTML=`<div class="card-divider"></div><div class="card-prop"><span class="card-prop-name" style="color:#6a1a6a">Curse</span><div class="card-prop-desc" style="color:#4a0a4a">${esc(curse)}</div></div>`;}else ce.style.display='none';
+
+  document.getElementById('cardValue').textContent = value?`Value: ${value}`:'';
+  document.getElementById('cardCreator').textContent = creator||'';
+
+  updateSummary(name, ti, stats, curse);
+  autoSave();
+}
+
+function updateSummary(name, ti, stats, curse) {
+  const chips = document.getElementById('summaryChips');
+  const rc = RARITY_COLORS[state.rarity];
+  let html = `<span class="chip gold">${esc(name)}</span>`;
+  html += `<span class="chip">${ti.label}</span>`;
+  html += `<span class="chip" style="color:${rc};border-color:${rc+'66'}">${state.rarity}</span>`;
+  if (state.attune) html += `<span class="chip">âš™ Attunement</span>`;
+  if (stats.length) stats.forEach(s=>{ html+=`<span class="chip">${s.val} ${s.lbl}</span>`; });
+  html += `<span class="chip">${state.properties.length} Propert${state.properties.length===1?'y':'ies'}</span>`;
+  if (curse) html += `<span class="chip curse">âš  Cursed</span>`;
+  chips.innerHTML = html;
+}
+
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// RANDOM
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function generateName() {
+  const pre = NAME_PREFIXES[Math.floor(Math.random()*NAME_PREFIXES.length)];
+  const mid = NAME_MIDDLES[Math.floor(Math.random()*NAME_MIDDLES.length)];
+  const suf = NAME_SUFFIXES[Math.floor(Math.random()*NAME_SUFFIXES.length)];
+  document.getElementById('itemName').value = pre+mid+suf;
+  updateCard();
+}
+
+function randomizeItem() {
+  generateName();
+  const type = ITEM_TYPES[Math.floor(Math.random()*ITEM_TYPES.length)];
+  selectType(type.id);
+  selectRarity(RARITIES[Math.floor(Math.random()*RARITIES.length)]);
+  const shouldAttune = Math.random() > 0.4;
+  document.getElementById('attuneToggle').checked = shouldAttune;
+  state.attune = shouldAttune;
+  document.getElementById('attuneClassField').style.display = shouldAttune?'':'none';
+  const creator = CREATORS[Math.floor(Math.random()*CREATORS.length)];
+  document.getElementById('itemCreator').value = creator;
+  const loreT = LORE_TEMPLATES[Math.floor(Math.random()*LORE_TEMPLATES.length)];
+  document.getElementById('itemLore').value = loreT.replace('{creator}',creator);
+  state.properties = []; propIdCounter = 0;
+  const count = 1 + Math.floor(Math.random()*3);
+  [...PROP_SUGGESTIONS].sort(()=>Math.random()-0.5).slice(0,count).forEach(p=>{
+    const id=++propIdCounter;
+    state.properties.push({id,name:p.name,desc:p.desc,type:p.type,charges:3,recharge:'Dawn'});
+  });
+  // Randomize visual appearance for the chosen type
+  ensureVS(type.id);
+  getVC(type.id).forEach(comp => {
+    state.visual[type.id][comp.id] = Math.floor(Math.random() * comp.list.length);
+  });
+  initVisual(type.id);
+
+  renderProperties(); updateCard();
+  showToast('âœ¨ Item randomized!');
+}
+
+function resetForm() {
+  ['itemName','itemCreator','itemValue','itemDesc','itemLore','itemCurse','attuneClass'].forEach(id=>{
+    document.getElementById(id).value='';
+  });
+  document.getElementById('attuneToggle').checked=false;
+  state.attune=false;
+  document.getElementById('attuneClassField').style.display='none';
+  state.properties=[]; propIdCounter=0;
+  renderProperties(); selectType('misc'); selectRarity('Rare'); updateCard();
+  showToast('Form reset');
+}
+
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// EXPORT
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function buildExportText() {
+  const name=document.getElementById('itemName').value.trim()||'Unnamed Item';
+  const creator=document.getElementById('itemCreator').value.trim();
+  const value=document.getElementById('itemValue').value.trim();
+  const desc=document.getElementById('itemDesc').value.trim();
+  const lore=document.getElementById('itemLore').value.trim();
+  const curse=document.getElementById('itemCurse').value.trim();
+  const atCls=document.getElementById('attuneClass').value.trim();
+  const stats=buildStats();
+  let out=`â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•\n  ${name.toUpperCase()}\nâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•\n`;
+  out+=`${getSubtitle()}, ${state.rarity}\n`;
+  if(state.attune) out+=`Requires Attunement${atCls?' '+atCls:''}\n`;
+  if(stats.length) out+='\n'+stats.map(s=>`${s.lbl}: ${s.val}`).join('  |  ')+'\n';
+  out+='\n';
+  state.properties.forEach(p=>{
+    out+=`[${p.name||'Property'} â€” ${p.type.toUpperCase()}${p.type==='charges'?` (${p.charges} charges, ${p.recharge})` :''}]\n${p.desc}\n\n`;
+  });
+  if(desc) out+=`APPEARANCE\n${desc}\n\n`;
+  if(lore) out+=`LORE\n"${lore}"\n\n`;
+  if(curse) out+=`CURSE\n${curse}\n\n`;
+  if(creator) out+=`Creator: ${creator}\n`;
+  if(value)   out+=`Value: ${value}\n`;
+  out+='â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•';
+  return out;
+}
+
+async function shareItem() {
+  const text = buildExportText();
+  if (navigator.share) {
+    try { await navigator.share({ title: document.getElementById('itemName').value||'Magical Item', text }); return; }
+    catch(e) {}
+  }
+  copyToClipboard();
+}
+
+function copyToClipboard() {
+  navigator.clipboard.writeText(buildExportText()).then(()=>showToast('ðŸ“‹ Copied!')).catch(()=>showToast('Copy failed'));
+}
+
+function downloadTxt() {
+  const name=(document.getElementById('itemName').value.trim()||'magical-item').replace(/\s+/g,'-').toLowerCase();
+  const a=document.createElement('a');
+  a.href='data:text/plain;charset=utf-8,'+encodeURIComponent(buildExportText());
+  a.download=name+'.txt'; a.click();
+  showToast('â¬‡ Downloaded!');
+}
+
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// UTILS
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2000);
+}
+
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// VISUAL SYSTEM
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+const METALS=[
+  {name:'Silver',    dark:'#707070',mid:'#b0b0b0',light:'#e0e0e0',shine:'#ffffff'},
+  {name:'Gold',      dark:'#8B6210',mid:'#C9A84C',light:'#FFD700',shine:'#FFF4AA'},
+  {name:'Bronze',    dark:'#5C3010',mid:'#A0622A',light:'#CD853F',shine:'#EEC080'},
+  {name:'Black Steel',dark:'#080808',mid:'#222222',light:'#404040',shine:'#686868'},
+  {name:'Mithril',   dark:'#2040A0',mid:'#4070C8',light:'#80B0FF',shine:'#C0D8FF'},
+  {name:'Obsidian',  dark:'#0A0015',mid:'#2A0840',light:'#501870',shine:'#9040B0'},
+  {name:'Bone',      dark:'#8B7050',mid:'#C0A070',light:'#E0C89A',shine:'#FFF8E8'},
+];
+const AURAS=[
+  {name:'None',     color:'none',   glow:'none'},
+  {name:'Flame',    color:'#FF5500',glow:'#FF2200'},
+  {name:'Frost',    color:'#44AAFF',glow:'#0055DD'},
+  {name:'Lightning',color:'#FFE844',glow:'#FFAA00'},
+  {name:'Shadow',   color:'#7722CC',glow:'#440099'},
+  {name:'Holy',     color:'#FFEE99',glow:'#FFD700'},
+  {name:'Poison',   color:'#44FF77',glow:'#00AA44'},
+  {name:'Blood',    color:'#CC1111',glow:'#880000'},
+  {name:'Arcane',   color:'#CC44FF',glow:'#9900CC'},
+];
+function mGrad(id,m,v){const x2=v?'0':'1',y2=v?'1':'0';return`<linearGradient id="${id}" x1="0" y1="0" x2="${x2}" y2="${y2}"><stop offset="0%" stop-color="${m.dark}"/><stop offset="40%" stop-color="${m.light}"/><stop offset="70%" stop-color="${m.mid}"/><stop offset="100%" stop-color="${m.dark}"/></linearGradient>`;}
+function gFilter(id,col,r){return`<filter id="${id}" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="${r}" result="blur"/><feFlood flood-color="${col}" flood-opacity="0.65" result="color"/><feComposite in="color" in2="blur" operator="in" result="glow"/><feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`;}
+const BLADES=[
+  {name:'Straight',  svg:m=>`<path d="M80,16 L74,162 L80,176 L86,162 Z" fill="url(#bG)" stroke="${m.dark}" stroke-width="0.5"/><line x1="80" y1="22" x2="80" y2="158" stroke="${m.shine}" stroke-width="0.7" opacity="0.45"/>`},
+  {name:'Curved',    svg:m=>`<path d="M80,16 Q94,82 88,160 L80,176 L74,162 Q61,82 80,16 Z" fill="url(#bG)" stroke="${m.dark}" stroke-width="0.5"/><path d="M80,22 Q90,82 85,157" stroke="${m.shine}" stroke-width="0.8" fill="none" opacity="0.4"/>`},
+  {name:'Broad',     svg:m=>`<path d="M80,16 L64,158 L80,176 L96,158 Z" fill="url(#bG)" stroke="${m.dark}" stroke-width="0.5"/><line x1="80" y1="20" x2="80" y2="155" stroke="${m.shine}" stroke-width="0.7" opacity="0.45"/>`},
+  {name:'Leaf',      svg:m=>`<path d="M80,16 Q97,72 93,140 L80,176 L67,140 Q63,72 80,16 Z" fill="url(#bG)" stroke="${m.dark}" stroke-width="0.5"/><path d="M80,22 Q92,72 89,136" stroke="${m.shine}" stroke-width="0.8" fill="none" opacity="0.38"/>`},
+  {name:'Flamberge', svg:m=>`<path d="M80,16 Q87,38 76,58 Q88,78 77,100 Q88,122 77,143 L80,176 L83,143 Q72,122 83,100 Q72,78 84,58 Q73,38 80,16 Z" fill="url(#bG)" stroke="${m.dark}" stroke-width="0.5"/>`},
+  {name:'Crystal',   svg:m=>`<path d="M80,16 L87,54 L92,96 L87,140 L80,176 L73,140 L68,96 L73,54 Z" fill="url(#bG)" stroke="${m.dark}" stroke-width="0.5"/><line x1="80" y1="16" x2="80" y2="173" stroke="${m.shine}" stroke-width="0.8" opacity="0.55"/>`},
+  {name:'Jagged',    svg:m=>`<path d="M80,16 L75,46 L79,54 L73,84 L78,90 L72,120 L77,126 L73,156 L80,176 L87,156 L83,126 L88,120 L82,90 L87,84 L81,54 L85,46 Z" fill="url(#bG)" stroke="${m.dark}" stroke-width="0.5"/>`},
+];
+const GUARDS=[
+  {name:'Simple',      svg:m=>`<rect x="57" y="173" width="46" height="8" rx="2" fill="url(#mG)" stroke="${m.dark}" stroke-width="0.5"/>`},
+  {name:'Swept Down',  svg:m=>`<path d="M57,173 Q59,191 68,193 L80,180 L92,193 Q101,191 103,173 L103,179 Q101,198 92,199 L80,185 L68,199 Q59,198 57,179 Z" fill="url(#mG)" stroke="${m.dark}" stroke-width="0.5"/>`},
+  {name:'Swept Up',    svg:m=>`<path d="M57,181 Q59,163 68,162 L80,174 L92,162 Q101,163 103,181 L103,175 Q101,157 92,156 L80,169 L68,156 Q59,157 57,175 Z" fill="url(#mG)" stroke="${m.dark}" stroke-width="0.5"/>`},
+  {name:'Dragon Wings',svg:m=>`<path d="M80,175 Q68,164 54,156 Q49,161 51,170 Q60,176 68,179 L80,182 L92,179 Q100,176 109,170 Q111,161 106,156 Q92,164 80,175 Z" fill="url(#mG)" stroke="${m.dark}" stroke-width="0.5"/>`},
+  {name:'Cross',       svg:m=>`<rect x="57" y="173" width="46" height="8" rx="1" fill="url(#mG)" stroke="${m.dark}" stroke-width="0.5"/><rect x="77" y="162" width="6" height="30" rx="1" fill="url(#mG)" stroke="${m.dark}" stroke-width="0.5"/>`},
+  {name:'Minimal',     svg:m=>`<ellipse cx="63" cy="176" rx="7" ry="4" fill="url(#mG)" stroke="${m.dark}" stroke-width="0.5"/><ellipse cx="97" cy="176" rx="7" ry="4" fill="url(#mG)" stroke="${m.dark}" stroke-width="0.5"/>`},
+  {name:'Ornate',      svg:m=>`<path d="M56,171 Q58,167 66,167 Q73,170 80,172 Q87,170 94,167 Q102,167 104,171 L104,180 Q102,185 94,185 Q87,183 80,180 Q73,183 66,185 Q58,185 56,180 Z" fill="url(#mG)" stroke="${m.dark}" stroke-width="0.5"/><circle cx="55" cy="176" r="5" fill="url(#mG)" stroke="${m.dark}" stroke-width="0.5"/><circle cx="105" cy="176" r="5" fill="url(#mG)" stroke="${m.dark}" stroke-width="0.5"/>`},
+];
+const GRIPS=[
+  {name:'Leather',  svg:()=>`<rect x="76" y="181" width="8" height="63" rx="2" fill="#7B3F1A"/><line x1="76" y1="188" x2="84" y2="182" stroke="#5a2a0a" stroke-width="1.5"/><line x1="76" y1="197" x2="84" y2="191" stroke="#5a2a0a" stroke-width="1.5"/><line x1="76" y1="206" x2="84" y2="200" stroke="#5a2a0a" stroke-width="1.5"/><line x1="76" y1="215" x2="84" y2="209" stroke="#5a2a0a" stroke-width="1.5"/><line x1="76" y1="224" x2="84" y2="218" stroke="#5a2a0a" stroke-width="1.5"/><line x1="76" y1="233" x2="84" y2="227" stroke="#5a2a0a" stroke-width="1.5"/><line x1="76" y1="242" x2="84" y2="236" stroke="#5a2a0a" stroke-width="1.5"/>`},
+  {name:'Wire Wrap',svg:()=>`<rect x="77" y="181" width="6" height="63" rx="1" fill="#3a2a1a"/><line x1="77" y1="187" x2="83" y2="182" stroke="#b0b0b0" stroke-width="1"/><line x1="77" y1="193" x2="83" y2="188" stroke="#b0b0b0" stroke-width="1"/><line x1="77" y1="199" x2="83" y2="194" stroke="#b0b0b0" stroke-width="1"/><line x1="77" y1="205" x2="83" y2="200" stroke="#b0b0b0" stroke-width="1"/><line x1="77" y1="211" x2="83" y2="206" stroke="#b0b0b0" stroke-width="1"/><line x1="77" y1="217" x2="83" y2="212" stroke="#b0b0b0" stroke-width="1"/><line x1="77" y1="223" x2="83" y2="218" stroke="#b0b0b0" stroke-width="1"/><line x1="77" y1="229" x2="83" y2="224" stroke="#b0b0b0" stroke-width="1"/>`},
+  {name:'Bone',     svg:()=>`<rect x="76" y="181" width="8" height="63" rx="3" fill="#ddd0b0"/><ellipse cx="80" cy="190" rx="4" ry="3" fill="#c8b090" opacity="0.7"/><ellipse cx="80" cy="203" rx="4" ry="3" fill="#c8b090" opacity="0.7"/><ellipse cx="80" cy="216" rx="4" ry="3" fill="#c8b090" opacity="0.7"/><ellipse cx="80" cy="229" rx="4" ry="3" fill="#c8b090" opacity="0.7"/>`},
+  {name:'Crystal',  svg:()=>`<rect x="76" y="181" width="8" height="63" rx="2" fill="rgba(170,215,255,0.55)" stroke="rgba(200,235,255,0.8)" stroke-width="0.8"/><line x1="80" y1="182" x2="80" y2="243" stroke="rgba(255,255,255,0.65)" stroke-width="1"/>`},
+  {name:'Ornate',   svg:()=>`<path d="M75,181 Q79,186 75,194 Q79,202 75,210 Q79,218 75,226 Q79,234 75,244 L80,244 L85,244 Q81,234 85,226 Q81,218 85,210 Q81,202 85,194 Q81,186 85,181 Z" fill="#8B6210"/>`},
+];
+const POMMELS=[
+  {name:'Round',   svg:m=>`<circle cx="80" cy="254" r="11" fill="url(#mG)" stroke="${m.dark}" stroke-width="0.5"/><circle cx="76" cy="251" r="3" fill="${m.shine}" opacity="0.4"/>`},
+  {name:'Diamond', svg:m=>`<polygon points="80,243 92,254 80,265 68,254" fill="url(#mG)" stroke="${m.dark}" stroke-width="0.5"/>`},
+  {name:'Wheel',   svg:m=>`<circle cx="80" cy="253" r="12" fill="url(#mG)" stroke="${m.dark}" stroke-width="0.5"/><circle cx="80" cy="253" r="4" fill="${m.dark}"/><line x1="80" y1="241" x2="80" y2="265" stroke="${m.dark}" stroke-width="1.5"/><line x1="68" y1="253" x2="92" y2="253" stroke="${m.dark}" stroke-width="1.5"/>`},
+  {name:'Tapered', svg:m=>`<path d="M76,244 L73,264 L80,269 L87,264 L84,244 Z" fill="url(#mG)" stroke="${m.dark}" stroke-width="0.5"/>`},
+  {name:'Gem',     svg:m=>`<polygon points="80,243 91,249 91,259 80,265 69,259 69,249" fill="url(#mG)" stroke="${m.dark}" stroke-width="0.5"/><polygon points="80,243 91,249 80,249 69,249" fill="${m.shine}" opacity="0.35"/>`},
+  {name:'Skull',   svg:m=>`<ellipse cx="80" cy="252" rx="11" ry="9" fill="url(#mG)" stroke="${m.dark}" stroke-width="0.5"/><ellipse cx="75" cy="250" rx="2.5" ry="3" fill="${m.dark}" opacity="0.85"/><ellipse cx="85" cy="250" rx="2.5" ry="3" fill="${m.dark}" opacity="0.85"/><path d="M74,258 L76,256 L78,257 L80,256 L82,257 L84,256 L86,258" stroke="${m.dark}" stroke-width="1" fill="none"/>`},
+];
+const POTION_BOTTLES=[
+  {name:'Round Flask',svg:(lc,sc)=>`<path d="M72,100 L72,155 Q72,178 80,180 Q88,178 88,155 L88,100 Z" fill="${lc}" opacity="0.8"/><path d="M72,100 L72,155 Q72,178 80,180 Q88,178 88,155 L88,100 Z" fill="none" stroke="${sc}" stroke-width="1.5"/><ellipse cx="80" cy="100" rx="8" ry="5" fill="none" stroke="${sc}" stroke-width="1.5"/><rect x="76" y="75" width="8" height="26" rx="1" fill="${sc}"/><rect x="73" y="73" width="14" height="5" rx="2" fill="${sc}"/><ellipse cx="75" cy="145" rx="4" ry="7" fill="rgba(255,255,255,0.18)"/>`},
+  {name:'Teardrop',   svg:(lc,sc)=>`<path d="M80,72 Q100,112 100,152 Q100,184 80,184 Q60,184 60,152 Q60,112 80,72 Z" fill="${lc}" opacity="0.8"/><path d="M80,72 Q100,112 100,152 Q100,184 80,184 Q60,184 60,152 Q60,112 80,72 Z" fill="none" stroke="${sc}" stroke-width="1.5"/><ellipse cx="70" cy="145" rx="5" ry="9" fill="rgba(255,255,255,0.18)"/>`},
+  {name:'Tall Vial',  svg:(lc,sc)=>`<rect x="71" y="82" width="18" height="103" rx="9" fill="${lc}" opacity="0.8"/><rect x="71" y="82" width="18" height="103" rx="9" fill="none" stroke="${sc}" stroke-width="1.5"/><rect x="74" y="65" width="12" height="18" rx="3" fill="${sc}"/><rect x="72" y="63" width="16" height="6" rx="2" fill="${sc}"/>`},
+  {name:'Skull Flask', svg:(lc,sc)=>`<ellipse cx="80" cy="148" rx="22" ry="25" fill="${lc}" opacity="0.8"/><ellipse cx="80" cy="148" rx="22" ry="25" fill="none" stroke="${sc}" stroke-width="1.5"/><ellipse cx="72" cy="143" rx="5" ry="6" fill="${sc}" opacity="0.55"/><ellipse cx="88" cy="143" rx="5" ry="6" fill="${sc}" opacity="0.55"/><path d="M74,158 L77,156 L80,157 L83,156 L86,158" stroke="${sc}" stroke-width="1.2" fill="none"/><rect x="75" y="110" width="10" height="24" rx="3" fill="${sc}"/><rect x="72" y="108" width="16" height="5" rx="2" fill="${sc}"/>`},
+  {name:'Amphora',    svg:(lc,sc)=>`<path d="M65,108 Q58,128 60,155 Q62,178 80,180 Q98,178 100,155 Q102,128 95,108 Q88,95 80,93 Q72,95 65,108 Z" fill="${lc}" opacity="0.8"/><path d="M65,108 Q58,128 60,155 Q62,178 80,180 Q98,178 100,155 Q102,128 95,108 Q88,95 80,93 Q72,95 65,108 Z" fill="none" stroke="${sc}" stroke-width="1.5"/><path d="M62,120 Q54,128 55,140 Q56,145 62,142" fill="none" stroke="${sc}" stroke-width="1.5"/><path d="M98,120 Q106,128 105,140 Q104,145 98,142" fill="none" stroke="${sc}" stroke-width="1.5"/><rect x="76" y="68" width="8" height="26" rx="2" fill="${sc}"/><rect x="73" y="66" width="14" height="5" rx="2" fill="${sc}"/>`},
+];
+const POTION_COLORS=[
+  {name:'Crimson',  liq:'#cc2222',stroke:'#8a0000'},{name:'Sapphire', liq:'#2255ee',stroke:'#001a99'},
+  {name:'Emerald',  liq:'#22bb44',stroke:'#006622'},{name:'Amethyst', liq:'#9933cc',stroke:'#550088'},
+  {name:'Amber',    liq:'#cc8800',stroke:'#885500'},{name:'Midnight', liq:'#1a0a2a',stroke:'#6622aa'},
+  {name:'Icy White',liq:'#aaddff',stroke:'#5599cc'},{name:'Gilded',   liq:'#ddaa00',stroke:'#887700'},
+];
+const STOPPERS=[
+  {name:'Cork',    svg:()=>`<rect x="76" y="56" width="8" height="12" rx="2" fill="#8B6530"/><rect x="74" y="54" width="12" height="5" rx="1" fill="#a07840"/>`},
+  {name:'Crystal', svg:()=>`<polygon points="80,48 86,58 74,58" fill="rgba(180,220,255,0.85)" stroke="rgba(200,240,255,0.9)" stroke-width="1"/>`},
+  {name:'Skull',   svg:()=>`<ellipse cx="80" cy="56" rx="7" ry="6" fill="#e0d0b0" stroke="#8B7050" stroke-width="0.8"/><ellipse cx="77" cy="54" rx="2" ry="2.5" fill="#3a2a1a" opacity="0.8"/><ellipse cx="83" cy="54" rx="2" ry="2.5" fill="#3a2a1a" opacity="0.8"/>`},
+  {name:'Gem',     svg:()=>`<polygon points="80,48 87,55 80,62 73,55" fill="#cc4444" stroke="#880000" stroke-width="0.8"/>`},
+  {name:'Wax Seal',svg:()=>`<circle cx="80" cy="58" r="8" fill="#cc2222" stroke="#880000" stroke-width="0.8"/><text x="80" y="62" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="8" font-family="serif">âœ¦</text>`},
+];
+const RING_BANDS=[
+  {name:'Simple',      svg:m=>`<ellipse cx="80" cy="175" rx="38" ry="15" fill="none" stroke="url(#mG)" stroke-width="11"/>`},
+  {name:'Braided',     svg:m=>`<ellipse cx="80" cy="175" rx="38" ry="15" fill="none" stroke="url(#mG)" stroke-width="10"/><ellipse cx="80" cy="175" rx="38" ry="15" fill="none" stroke="${m.dark}" stroke-width="2" stroke-dasharray="7,5" opacity="0.7"/>`},
+  {name:'Thorned',     svg:m=>`<ellipse cx="80" cy="175" rx="38" ry="15" fill="none" stroke="url(#mG)" stroke-width="9"/><ellipse cx="80" cy="175" rx="38" ry="15" fill="none" stroke="${m.dark}" stroke-width="3.5" stroke-dasharray="2,9" opacity="0.9"/>`},
+  {name:'Rune-etched', svg:m=>`<ellipse cx="80" cy="175" rx="38" ry="15" fill="none" stroke="url(#mG)" stroke-width="11"/><ellipse cx="80" cy="175" rx="38" ry="15" fill="none" stroke="${m.shine}" stroke-width="1.5" stroke-dasharray="3,4" opacity="0.5"/>`},
+  {name:'Dragon Scale',svg:m=>`<ellipse cx="80" cy="175" rx="38" ry="15" fill="none" stroke="url(#mG)" stroke-width="12"/><ellipse cx="80" cy="175" rx="38" ry="15" fill="none" stroke="${m.dark}" stroke-width="2.5" stroke-dasharray="6,3" opacity="0.7"/>`},
+];
+const RING_STONES=[
+  {name:'None',    col:null,hi:null,svg:()=>''},
+  {name:'Ruby',    col:'#cc1122',hi:'#ff6677',svg:(c,h)=>`<ellipse cx="80" cy="136" rx="14" ry="10" fill="${c}" stroke="#880000" stroke-width="1"/><ellipse cx="75" cy="133" rx="5" ry="4" fill="${h}" opacity="0.35"/>`},
+  {name:'Sapphire',col:'#1133cc',hi:'#5577ff',svg:(c,h)=>`<ellipse cx="80" cy="136" rx="14" ry="10" fill="${c}" stroke="#000088" stroke-width="1"/><ellipse cx="75" cy="133" rx="5" ry="4" fill="${h}" opacity="0.35"/>`},
+  {name:'Emerald', col:'#117722',hi:'#44cc66',svg:(c,h)=>`<ellipse cx="80" cy="136" rx="14" ry="10" fill="${c}" stroke="#004400" stroke-width="1"/><ellipse cx="75" cy="133" rx="5" ry="4" fill="${h}" opacity="0.35"/>`},
+  {name:'Amethyst',col:'#7722aa',hi:'#cc66ff',svg:(c,h)=>`<ellipse cx="80" cy="136" rx="14" ry="10" fill="${c}" stroke="#440066" stroke-width="1"/><ellipse cx="75" cy="133" rx="5" ry="4" fill="${h}" opacity="0.35"/>`},
+  {name:'Diamond', col:'#ddeeff',hi:'#ffffff',svg:(c,h)=>`<ellipse cx="80" cy="136" rx="14" ry="10" fill="${c}" stroke="#aabbcc" stroke-width="1"/><ellipse cx="75" cy="133" rx="5" ry="4" fill="${h}" opacity="0.6"/>`},
+  {name:'Onyx',    col:'#111111',hi:'#555555',svg:(c,h)=>`<ellipse cx="80" cy="136" rx="14" ry="10" fill="${c}" stroke="#000000" stroke-width="1"/><ellipse cx="75" cy="133" rx="4" ry="3" fill="${h}" opacity="0.3"/>`},
+];
+const WAND_SHAFTS=[
+  {name:'Straight',  svg:m=>`<rect x="78" y="60" width="4" height="185" rx="2" fill="url(#mG)" stroke="${m.dark}" stroke-width="0.5"/>`},
+  {name:'Tapered',   svg:m=>`<path d="M77,60 L76,245 L80,248 L84,245 L83,60 Z" fill="url(#mG)" stroke="${m.dark}" stroke-width="0.5"/>`},
+  {name:'Gnarled',   svg:m=>`<path d="M79,60 Q76,90 80,120 Q83,150 78,180 Q81,210 79,245 L81,245 Q83,210 81,180 Q76,150 82,120 Q77,90 81,60 Z" fill="url(#mG)" stroke="${m.dark}" stroke-width="0.5"/>`},
+  {name:'Faceted',   svg:m=>`<path d="M78,60 L76,120 L77,180 L79,245 L81,245 L83,180 L84,120 L82,60 Z" fill="url(#bG)" stroke="${m.dark}" stroke-width="0.5"/>`},
+  {name:'Bone Staff',svg:()=>`<rect x="78" y="60" width="4" height="185" rx="2" fill="#ddd0b0" stroke="#8B7050" stroke-width="0.5"/><ellipse cx="80" cy="100" rx="5" ry="4" fill="#c8b090" opacity="0.8"/><ellipse cx="80" cy="148" rx="5" ry="4" fill="#c8b090" opacity="0.8"/>`},
+];
+const WAND_TIPS=[
+  {name:'Crystal Orb',svg:a=>`<circle cx="80" cy="42" r="20" fill="rgba(180,220,255,0.2)" stroke="${a.color==='none'?'#4488aa':a.color}" stroke-width="1.5"/><circle cx="80" cy="42" r="13" fill="rgba(180,220,255,0.35)"/><circle cx="74" cy="36" r="5" fill="rgba(255,255,255,0.28)"/>`},
+  {name:'Dragon Claw',svg:a=>`<path d="M80,20 Q86,28 84,40 L80,58 L76,40 Q74,28 80,20 Z" fill="${a.color==='none'?'#8844aa':a.color}" opacity="0.85"/><path d="M72,25 Q75,34 72,43 L70,56 L74,43 Q77,34 76,25 Z" fill="${a.color==='none'?'#8844aa':a.color}" opacity="0.6"/><path d="M88,25 Q85,34 88,43 L90,56 L86,43 Q83,34 84,25 Z" fill="${a.color==='none'?'#8844aa':a.color}" opacity="0.6"/>`},
+  {name:'Star Burst', svg:a=>`<polygon points="80,18 83,30 95,30 85,37 89,50 80,42 71,50 75,37 65,30 77,30" fill="${a.color==='none'?'#ddaa44':a.color}" opacity="0.88"/>`},
+  {name:'Skull',      svg:_=>`<ellipse cx="80" cy="36" rx="18" ry="16" fill="url(#mG)"/><ellipse cx="72" cy="33" rx="5" ry="6" fill="#1a0a00" opacity="0.85"/><ellipse cx="88" cy="33" rx="5" ry="6" fill="#1a0a00" opacity="0.85"/><path d="M72,46 L75,44 L78,45 L80,44 L82,45 L85,44 L88,46" stroke="#1a0a00" stroke-width="1.2" fill="none"/>`},
+  {name:'Flame',      svg:a=>`<path d="M80,15 Q90,25 86,38 Q92,30 88,44 Q86,52 80,56 Q74,52 72,44 Q68,30 74,38 Q70,25 80,15 Z" fill="${a.color==='none'?'#FF5500':a.color}" opacity="0.9"/>`},
+];
+const MISC_FRAMES=[
+  {name:'Round',    svg:m=>`<circle cx="80" cy="150" r="62" fill="none" stroke="url(#mG)" stroke-width="6"/><circle cx="80" cy="150" r="54" fill="none" stroke="${m.shine}" stroke-width="0.6" opacity="0.25"/>`},
+  {name:'Hexagonal',svg:m=>`<polygon points="80,88 132,118 132,178 80,208 28,178 28,118" fill="none" stroke="url(#mG)" stroke-width="6"/><polygon points="80,96 125,122 125,174 80,200 35,174 35,122" fill="none" stroke="${m.shine}" stroke-width="0.6" opacity="0.25"/>`},
+  {name:'Diamond',  svg:m=>`<polygon points="80,85 136,150 80,215 24,150" fill="none" stroke="url(#mG)" stroke-width="6"/><polygon points="80,93 128,150 80,207 32,150" fill="none" stroke="${m.shine}" stroke-width="0.6" opacity="0.25"/>`},
+  {name:'Double Ring',svg:m=>`<circle cx="80" cy="150" r="62" fill="none" stroke="url(#mG)" stroke-width="4"/><circle cx="80" cy="150" r="50" fill="none" stroke="url(#mG)" stroke-width="2"/><line x1="80" y1="88" x2="80" y2="212" stroke="${m.mid}" stroke-width="0.7" opacity="0.3"/><line x1="18" y1="150" x2="142" y2="150" stroke="${m.mid}" stroke-width="0.7" opacity="0.3"/><line x1="35" y1="97" x2="125" y2="203" stroke="${m.mid}" stroke-width="0.7" opacity="0.3"/><line x1="125" y1="97" x2="35" y2="203" stroke="${m.mid}" stroke-width="0.7" opacity="0.3"/>`},
+];
+const MISC_CENTERS=[
+  {name:'Magic Eye', svg:a=>`<ellipse cx="80" cy="150" rx="28" ry="18" fill="#0a0510"/><ellipse cx="80" cy="150" rx="18" ry="12" fill="${a.color==='none'?'#9944ff':a.color}" opacity="0.6"/><ellipse cx="80" cy="150" rx="10" ry="10" fill="#0a0510"/><circle cx="80" cy="150" r="6" fill="${a.glow==='none'?'#cc66ff':a.glow}" opacity="0.85"/>`},
+  {name:'Rune',      svg:a=>`<text x="80" y="165" text-anchor="middle" fill="${a.color==='none'?'#c9a84c':a.color}" font-size="52" font-family="serif" opacity="0.88">áš </text>`},
+  {name:'Pentagram', svg:a=>{const col=a.color==='none'?'#9944ff':a.color;return`<circle cx="80" cy="150" r="55" fill="none" stroke="${col}" stroke-width="1" opacity="0.45"/><line x1="80" y1="95" x2="111" y2="192" stroke="${col}" stroke-width="1.4" opacity="0.88"/><line x1="130" y1="134" x2="49" y2="192" stroke="${col}" stroke-width="1.4" opacity="0.88"/><line x1="111" y1="192" x2="31" y2="134" stroke="${col}" stroke-width="1.4" opacity="0.88"/><line x1="49" y1="192" x2="80" y2="95" stroke="${col}" stroke-width="1.4" opacity="0.88"/><line x1="31" y1="134" x2="130" y2="134" stroke="${col}" stroke-width="1.4" opacity="0.88"/><polygon points="92,134 99,156 80,170 61,156 68,134" fill="none" stroke="${col}" stroke-width="0.8" opacity="0.35"/><circle cx="80" cy="150" r="2.5" fill="${col}" opacity="0.65"/><circle cx="80" cy="95" r="2" fill="${col}" opacity="0.55"/><circle cx="130" cy="134" r="2" fill="${col}" opacity="0.55"/><circle cx="111" cy="192" r="2" fill="${col}" opacity="0.55"/><circle cx="49" cy="192" r="2" fill="${col}" opacity="0.55"/><circle cx="31" cy="134" r="2" fill="${col}" opacity="0.55"/>`}},
+  {name:'Infinity',  svg:a=>`<path d="M50,150 Q50,126 68,126 Q88,126 80,150 Q72,174 92,174 Q110,174 110,150 Q110,126 92,126 Q72,126 80,150 Q88,174 68,174 Q50,174 50,150 Z" fill="none" stroke="${a.color==='none'?'#9944ff':a.color}" stroke-width="2.5" opacity="0.88"/>`},
+  {name:'Dragon Seal',svg:a=>`<circle cx="80" cy="150" r="32" fill="none" stroke="${a.color==='none'?'#c9a84c':a.color}" stroke-width="1.5" opacity="0.7"/><text x="80" y="162" text-anchor="middle" font-size="38" opacity="0.8">ðŸ‰</text>`},
+  {name:'Crystal',   svg:a=>`<polygon points="80,112 96,134 96,166 80,188 64,166 64,134" fill="${a.color==='none'?'#9944ff':a.color}" opacity="0.25" stroke="${a.glow==='none'?'#cc66ff':a.glow}" stroke-width="1.5"/>`},
+];
+
+const VISUAL_COMPONENTS={
+  weapon:[{id:'aura',label:'Aura',list:AURAS,clr:true},{id:'blade',label:'Blade',list:BLADES},{id:'guard',label:'Guard',list:GUARDS},{id:'grip',label:'Grip',list:GRIPS},{id:'pommel',label:'Pommel',list:POMMELS},{id:'metal',label:'Metal',list:METALS,clr:true}],
+  staff: [{id:'aura',label:'Aura',list:AURAS,clr:true},{id:'shaft',label:'Shaft',list:WAND_SHAFTS},{id:'tip',label:'Tip',list:WAND_TIPS},{id:'metal',label:'Metal',list:METALS,clr:true}],
+  wand:  [{id:'aura',label:'Aura',list:AURAS,clr:true},{id:'shaft',label:'Shaft',list:WAND_SHAFTS},{id:'tip',label:'Tip',list:WAND_TIPS},{id:'metal',label:'Metal',list:METALS,clr:true}],
+  rod:   [{id:'aura',label:'Aura',list:AURAS,clr:true},{id:'shaft',label:'Shaft',list:WAND_SHAFTS},{id:'tip',label:'Tip',list:WAND_TIPS},{id:'metal',label:'Metal',list:METALS,clr:true}],
+  potion:[{id:'bottle',label:'Bottle',list:POTION_BOTTLES},{id:'color',label:'Color',list:POTION_COLORS,clr:true},{id:'stopper',label:'Stopper',list:STOPPERS}],
+  ring:  [{id:'aura',label:'Aura',list:AURAS,clr:true},{id:'band',label:'Band',list:RING_BANDS},{id:'stone',label:'Stone',list:RING_STONES,clr:true},{id:'metal',label:'Metal',list:METALS,clr:true}],
+};
+VISUAL_COMPONENTS._default=[{id:'aura',label:'Aura',list:AURAS,clr:true},{id:'frame',label:'Frame',list:MISC_FRAMES},{id:'center',label:'Symbol',list:MISC_CENTERS},{id:'metal',label:'Metal',list:METALS,clr:true}];
+
+function getVC(type){return VISUAL_COMPONENTS[type]||VISUAL_COMPONENTS._default;}
+function ensureVS(type){if(!state.visual[type]){state.visual[type]={};getVC(type).forEach(c=>{state.visual[type][c.id]=0;});}}
+function getVI(type,cid){ensureVS(type);return state.visual[type][cid]||0;}
+
+function cycleVisual(type,cid,dir){
+  ensureVS(type);
+  const comp=getVC(type).find(c=>c.id===cid);
+  if(!comp)return;
+  state.visual[type][cid]=((state.visual[type][cid]||0)+dir+comp.list.length)%comp.list.length;
+  renderVisualPickers(type); renderVisualCanvas(type);
+  const w=document.getElementById('cardArtArea');
+  if(w){w.innerHTML=buildItemSVG(type,state.visual[type]);w.style.display='';}
+  if(navigator.vibrate) navigator.vibrate(8);
+}
+
+function buildItemSVG(type,vis){
+  const m=METALS[vis.metal||0]||METALS[0], a=AURAS[vis.aura||0]||AURAS[0];
+  let defs=mGrad('mG',m,false)+mGrad('bG',m,true);
+  if(a.color!=='none') defs+=gFilter('gF',a.color,6);
+  const fa=a.color!=='none'?' filter="url(#gF)"':'';
+  let body='';
+  if(type==='weapon'){
+    const bl=BLADES[vis.blade||0],gu=GUARDS[vis.guard||0],gr=GRIPS[vis.grip||0],po=POMMELS[vis.pommel||0];
+    if(a.color!=='none') body+=`<ellipse cx="80" cy="145" rx="14" ry="90" fill="${a.color}" opacity="0.15" filter="url(#gF)"/>`;
+    body+=`<g${fa}>${bl.svg(m)}</g>${gu.svg(m)}${gr.svg()}${po.svg(m)}`;
+  } else if(['wand','staff','rod'].includes(type)){
+    const sh=WAND_SHAFTS[vis.shaft||0],ti=WAND_TIPS[vis.tip||0];
+    if(a.color!=='none') body+=`<ellipse cx="80" cy="150" rx="10" ry="100" fill="${a.color}" opacity="0.12" filter="url(#gF)"/>`;
+    body+=`<g${fa}>${sh.svg(m)}</g><g${fa}>${ti.svg(a)}</g>`;
+  } else if(type==='potion'){
+    const bo=POTION_BOTTLES[vis.bottle||0],pc=POTION_COLORS[vis.color||0],st=STOPPERS[vis.stopper||0];
+    if(a.color!=='none') body+=`<ellipse cx="80" cy="150" rx="30" ry="60" fill="${a.color}" opacity="0.12" filter="url(#gF)"/>`;
+    body+=bo.svg(pc.liq,pc.stroke)+st.svg();
+  } else if(type==='ring'){
+    const ba=RING_BANDS[vis.band||0],rs=RING_STONES[vis.stone||0];
+    if(a.color!=='none') body+=`<ellipse cx="80" cy="160" rx="55" ry="35" fill="${a.color}" opacity="0.12" filter="url(#gF)"/>`;
+    body+=ba.svg(m);
+    if(rs&&rs.svg) body+=rs.svg(rs.col,rs.hi);
+  } else {
+    const fr=MISC_FRAMES[vis.frame||0],ce=MISC_CENTERS[vis.center||0];
+    if(a.color!=='none') body+=`<circle cx="80" cy="150" r="68" fill="${a.color}" opacity="0.1" filter="url(#gF)"/>`;
+    body+=fr.svg(m)+ce.svg(a);
+  }
+  return`<svg viewBox="0 0 160 300" xmlns="http://www.w3.org/2000/svg"><defs>${defs}</defs>${body}</svg>`;
+}
+
+function buildMiniSVG(type,cid,idx){
+  const comp=getVC(type).find(c=>c.id===cid); if(!comp)return'';
+  const item=comp.list[idx]; if(!item)return'';
+  if(comp.clr){
+    const col=item.color||item.liq||item.mid||'#888';
+    if(col==='none') return`<svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="8" fill="#333" stroke="#666" stroke-width="1"/><line x1="4" y1="4" x2="16" y2="16" stroke="#666" stroke-width="1.5"/></svg>`;
+    return`<svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="8" fill="${col}" opacity="0.9"/></svg>`;
+  }
+  const m=METALS[getVI(type,'metal')]||METALS[0], a=AURAS[getVI(type,'aura')]||AURAS[0];
+  let svg=''; const defs=mGrad('mG',m,false)+mGrad('bG',m,true);
+  if(cid==='blade'&&BLADES[idx])       svg=BLADES[idx].svg(m);
+  else if(cid==='guard'&&GUARDS[idx])  svg=GUARDS[idx].svg(m);
+  else if(cid==='grip'&&GRIPS[idx])    svg=GRIPS[idx].svg();
+  else if(cid==='pommel'&&POMMELS[idx])svg=POMMELS[idx].svg(m);
+  else if(cid==='shaft'&&WAND_SHAFTS[idx]) svg=WAND_SHAFTS[idx].svg(m);
+  else if(cid==='tip'&&WAND_TIPS[idx])     svg=WAND_TIPS[idx].svg(a);
+  else if(cid==='bottle'&&POTION_BOTTLES[idx]){const pc=POTION_COLORS[getVI(type,'color')]||POTION_COLORS[0];svg=POTION_BOTTLES[idx].svg(pc.liq,pc.stroke);}
+  else if(cid==='stopper'&&STOPPERS[idx])  svg=STOPPERS[idx].svg();
+  else if(cid==='band'&&RING_BANDS[idx])   svg=RING_BANDS[idx].svg(m);
+  else if(cid==='stone'&&RING_STONES[idx]&&RING_STONES[idx].svg) svg=RING_STONES[idx].svg(RING_STONES[idx].col,RING_STONES[idx].hi);
+  else if(cid==='frame'&&MISC_FRAMES[idx]) svg=MISC_FRAMES[idx].svg(m);
+  else if(cid==='center'&&MISC_CENTERS[idx]) svg=MISC_CENTERS[idx].svg(a);
+  return`<svg viewBox="0 0 160 300" xmlns="http://www.w3.org/2000/svg"><defs>${defs}</defs>${svg}</svg>`;
+}
+
+function renderVisualCanvas(type){
+  const c=document.getElementById('visualCanvas'); if(!c)return;
+  ensureVS(type); c.innerHTML=buildItemSVG(type,state.visual[type]);
+}
+
+function renderVisualPickers(type){
+  const con=document.getElementById('componentPickers'); if(!con)return;
+  ensureVS(type); const comps=getVC(type); con.innerHTML='';
+  comps.forEach(comp=>{
+    const idx=getVI(type,comp.id), item=comp.list[idx], total=comp.list.length;
+    // Build color swatch for color-type options
+    let swatchHTML='';
+    if(comp.clr && item){
+      const col=item.color||item.liq||item.mid||null;
+      if(col && col!=='none'){
+        swatchHTML=`<span class="picker-swatch" style="background:${col};color:${col}"></span>`;
+      }
+    }
+    const row=document.createElement('div'); row.className='picker-row';
+    row.innerHTML=`
+      <span class="picker-lbl">${comp.label}</span>
+      <button class="picker-arrow-btn" onclick="cycleVisual('${type}','${comp.id}',-1)">&#9664;</button>
+      <div class="picker-center">
+        <div class="picker-name-row">
+          ${swatchHTML}
+          <span class="picker-val">${item?item.name:'â€”'}</span>
+        </div>
+        <span class="picker-count">${idx+1} of ${total}</span>
+      </div>
+      <button class="picker-arrow-btn" onclick="cycleVisual('${type}','${comp.id}',1)">&#9654;</button>`;
+    con.appendChild(row);
+  });
+}
+
+function initVisual(type){
+  ensureVS(type);
+  renderVisualPickers(type);
+  renderVisualCanvas(type);
+  // Always show card art â€” even on first load with default visual state
+  const w = document.getElementById('cardArtArea');
+  if (w) {
+    const svg = buildItemSVG(type, state.visual[type]);
+    if (svg) { w.innerHTML = svg; w.style.display = ''; }
+  }
+}
+
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// PERSISTENCE â€” localStorage auto-save + named library
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+const AUTOSAVE_KEY = 'arcane-forge-autosave';
+const LIBRARY_KEY  = 'arcane-forge-library';
+
+function captureState() {
+  const g = id => (document.getElementById(id)||{}).value || '';
+  return {
+    type: state.type, rarity: state.rarity,
+    attune: state.attune, properties: state.properties,
+    visual: state.visual, propIdCounter,
+    name:        g('itemName'),    creator:  g('itemCreator'),
+    value:       g('itemValue'),   desc:     g('itemDesc'),
+    lore:        g('itemLore'),    curse:    g('itemCurse'),
+    attuneClass: g('attuneClass'),
+    weaponSubtype: g('weaponSubtype'), damageDice: g('damageDice'),
+    damageType:    g('damageType'),    attackBonus: g('attackBonus'),
+    armorSubtype:  g('armorSubtype'), baseAC: g('baseAC'), acBonus: g('acBonus'),
+    potionColor:   g('potionColor'),  potionDoses: g('potionDoses'),
+  };
+}
+
+function restoreState(s) {
+  if (!s) return;
+  // Restore state object
+  state.type = s.type || 'misc';
+  state.rarity = s.rarity || 'Rare';
+  state.attune = !!s.attune;
+  state.properties = (s.properties || []).map(p => ({...p})); // deep copy â€” prevent library corruption
+  state.visual = JSON.parse(JSON.stringify(s.visual || {}));  // deep copy visual state
+  propIdCounter = (s.propIdCounter != null) ? s.propIdCounter : 0; // fix falsy 0 bug
+  // Restore form fields
+  const set = (id, v) => { const el = document.getElementById(id); if (el && v != null) el.value = v; };
+  set('itemName', s.name); set('itemCreator', s.creator); set('itemValue', s.value);
+  set('itemDesc', s.desc); set('itemLore', s.lore); set('itemCurse', s.curse);
+  set('attuneClass', s.attuneClass);
+  set('weaponSubtype', s.weaponSubtype); set('damageDice', s.damageDice);
+  set('damageType', s.damageType);       set('attackBonus', s.attackBonus);
+  set('armorSubtype', s.armorSubtype);   set('baseAC', s.baseAC); set('acBonus', s.acBonus);
+  set('potionColor', s.potionColor);     set('potionDoses', s.potionDoses);
+  // Re-render UI
+  document.getElementById('attuneToggle').checked = state.attune;
+  document.getElementById('attuneClassField').style.display = state.attune ? '' : 'none';
+  document.querySelectorAll('.type-btn').forEach(b => b.classList.toggle('active', b.dataset.type === state.type));
+  document.getElementById('weaponFields').classList.toggle('visible', state.type === 'weapon');
+  document.getElementById('armorFields').classList.toggle('visible',  state.type === 'armor');
+  document.getElementById('potionFields').classList.toggle('visible', state.type === 'potion');
+  document.querySelectorAll('.rarity-btn').forEach(b => b.classList.toggle('active', b.dataset.rarity === state.rarity));
+  renderProperties();
+  // initVisual re-renders pickers + canvas using the restored state.visual â€” order matters
+  initVisual(state.type);
+  // Explicitly refresh the card art area so the saved visual shows on the Preview tab
+  const artArea = document.getElementById('cardArtArea');
+  if (artArea) {
+    artArea.innerHTML = buildItemSVG(state.type, state.visual[state.type] || {});
+    artArea.style.display = '';
+  }
+  updateCard();
+}
+
+function autoSave() {
+  try {
+    localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(captureState()));
+  } catch(e) {
+    if (e.name === 'QuotaExceededError') showToast('âš ï¸ Storage full â€” clear library to save');
+  }
+}
+
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// LIBRARY
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function getLibrary() {
+  try { return JSON.parse(localStorage.getItem(LIBRARY_KEY) || '[]'); } catch(e) { return []; }
+}
+function saveLibrary(lib) {
+  try {
+    localStorage.setItem(LIBRARY_KEY, JSON.stringify(lib));
+  } catch(e) {
+    if (e.name === 'QuotaExceededError') showToast('âš ï¸ Storage full â€” delete some items');
+  }
+}
+
+function saveToLibrary() {
+  const lib  = getLibrary();
+  const rawName = document.getElementById('itemName').value.trim();
+  // Warn if item is basically empty
+  if (!rawName && !state.properties.length) {
+    showToast('âš ï¸ Add a name or properties first');
+    return;
+  }
+  const name = rawName || 'Unnamed Item';
+  const item = {
+    id: Date.now(),
+    name,
+    type: state.type,
+    rarity: state.rarity,
+    savedAt: new Date().toLocaleString('en-US', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' }),
+    data: captureState(),
+  };
+  lib.unshift(item);
+  if (lib.length > 60) lib.splice(60);
+  saveLibrary(lib);
+  renderLibrary();
+  if (navigator.vibrate) navigator.vibrate([10,40,10]);
+  showToast('ðŸ’¾ Saved to My Items!');
+}
+
+function loadFromLibrary(id) {
+  const item = getLibrary().find(i => i.id === id);
+  if (!item) return;
+  restoreState(item.data);
+  closeLibrary();
+  switchTab('preview');
+  showToast('âœ… Item loaded!');
+}
+
+function deleteFromLibrary(id) {
+  const lib = getLibrary().filter(i => i.id !== id);
+  saveLibrary(lib);
+  renderLibrary();
+  if (navigator.vibrate) navigator.vibrate(20);
+}
+
+function renderLibrary() {
+  const lib  = getLibrary();
+  const list = document.getElementById('libraryList');
+  if (!lib.length) {
+    list.innerHTML = '<div class="sheet-empty">No saved items yet.<br>Tap "Save Current" to add one.</div>';
+    return;
+  }
+  const rc = RARITY_COLORS;
+  list.innerHTML = lib.map(item => {
+    const ti   = ITEM_TYPES.find(t => t.id === item.type) || ITEM_TYPES[ITEM_TYPES.length - 1];
+    const col  = rc[item.rarity] || '#aaa';
+    return `<div class="lib-item">
+      <span class="lib-icon">${ti.icon}</span>
+      <div class="lib-info">
+        <div class="lib-name">${esc(item.name)}</div>
+        <div class="lib-meta" style="color:${col}">${item.rarity}</div>
+        <div class="lib-meta">${ti.label} &middot; ${item.savedAt}</div>
+      </div>
+      <button class="lib-load" onclick="loadFromLibrary(${item.id})">Load</button>
+      <button class="lib-del"  onclick="deleteFromLibrary(${item.id})">âœ•</button>
+    </div>`;
+  }).join('');
+}
+
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ONBOARDING
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function showOnboarding() {
+  const el = document.getElementById('onboardBackdrop');
+  if (el) requestAnimationFrame(() => el.classList.add('open'));
+}
+function dismissOnboarding() {
+  const el = document.getElementById('onboardBackdrop');
+  if (el) el.classList.remove('open');
+  try { localStorage.setItem('arcane-forge-onboarded', '1'); } catch(e) {}
+  if (navigator.vibrate) navigator.vibrate(15);
+}
+
+function openLibrary() {
+  renderLibrary();
+  document.getElementById('libraryBackdrop').classList.add('open');
+  document.getElementById('librarySheet').classList.add('open');
+  if (navigator.vibrate) navigator.vibrate(10);
+}
+function closeLibrary() {
+  document.getElementById('libraryBackdrop').classList.remove('open');
+  document.getElementById('librarySheet').classList.remove('open');
+}
+
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// IMAGE EXPORT
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+async function exportAsImage() {
+  const btn = document.getElementById('btnShareImg');
+  btn.classList.add('loading');
+  btn.textContent = 'â³ Renderingâ€¦';
+
+  try {
+    const h2c = await loadHtml2Canvas();
+    const card = document.getElementById('itemCard');
+
+    // Ensure preview tab is active so card is fully visible in the DOM
+    switchTab('preview');
+    // Wait for CSS transition + layout reflow â€” rAF ensures paint, then 220ms for slow devices
+    await new Promise(r => requestAnimationFrame(() => setTimeout(r, 220)));
+
+    const canvas = await h2c(card, {
+      backgroundColor: null,
+      scale: 2.5,
+      useCORS: true,
+      allowTaint: true,
+      logging: false,
+      removeContainer: true,
+    });
+
+    canvas.toBlob(async blob => {
+      const itemName = document.getElementById('itemName').value.trim() || 'magical-item';
+      const safeName = itemName.replace(/[^a-z0-9\-_ ]/gi, '').replace(/\s+/g, '-').toLowerCase();
+      const file = new File([blob], `${safeName}.png`, { type: 'image/png' });
+
+      // Try native share with file (Android / iOS)
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: itemName,
+            text: `Check out my magical item: ${itemName}`,
+          });
+        } catch(e) {
+          if (e.name !== 'AbortError') downloadBlob(blob, safeName);
+        }
+      } else {
+        // Fallback: download the PNG
+        downloadBlob(blob, safeName);
+        showToast('ðŸ–¼ï¸ Card saved as image!');
+      }
+    }, 'image/png');
+
+  } catch(err) {
+    console.error('Image export failed:', err);
+    showToast('Image export unavailable offline â€” try text share');
+    shareItem(); // graceful fallback to text
+  } finally {
+    btn.classList.remove('loading');
+    btn.textContent = 'ðŸ–¼ï¸ Share Image';
+  }
+}
+
+function downloadBlob(blob, baseName) {
+  const url = URL.createObjectURL(blob);
+  const a   = document.createElement('a');
+  a.href    = url;
+  a.download = `${baseName}.png`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
+}
+
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// BOOT
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+init();
+</script>
+</body>
+</html>
