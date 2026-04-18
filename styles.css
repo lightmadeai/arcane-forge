@@ -1,4 +1,4 @@
-﻿</script>
+﻿﻿﻿</script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
 
@@ -32,6 +32,8 @@
   --rc-veryrare:  #a335ee;
   --rc-legendary: #ff8000;
   --rc-artifact:  #e6cc80;
+  --svg-canvas-h: 240px;
+  --svg-card-h:  140px;
 }
 
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
@@ -105,29 +107,21 @@ input, textarea, select { font-family: inherit; }
   overflow: hidden;
   position: relative;
 }
-/* Horizontal carousel track â€” all 5 panels sit side-by-side.
-   switchTab() translates this track so the right panel slides into view.
-   Each panel fills exactly the visible width and scrolls independently.
-   This is far more reliable for touch-scroll than position:absolute overlays. */
+/* Panel toggle system - panels hidden by default, .active shows the current panel.
+   Each active panel fills the visible area and scrolls independently. */
 .panels-track {
-  display: flex;
-  width: 500%;  /* 5 panels Ã— 100% */
-  height: 100%;
-  will-change: transform;
-  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  display: contents;
 }
 .panel {
-  width: 20%;   /* 1/5 of 500% = 100% of panels-wrap */
+  display: none;
   height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
   padding: 16px 14px calc(16px + env(safe-area-inset-bottom));
-  /* Block layout â€” cards stack naturally and overflow the fixed height,
-     which is what makes overflow-y: auto actually scroll.
-     display:flex with flex-shrink:1 (default) was compressing cards to fit,
-     so content never overflowed and there was nothing to pan. */
+}
+.panel.active {
   display: block;
 }
 /* Vertical gap between cards using margin instead of flex gap */
@@ -135,8 +129,8 @@ input, textarea, select { font-family: inherit; }
 .panel::-webkit-scrollbar { display: none; }
 
 /* Preview panel needs flex so the item card can grow to fill height */
-#panel-preview {
-  display: flex;
+#panel-preview.active {
+  display: flex !important;
   flex-direction: column;
   justify-content: space-between;
 }
@@ -301,8 +295,15 @@ select option { background: #1a1510; }
 .rarity-btn.active {
   border-color: var(--rc);
   color: var(--rc);
-  background: color-mix(in srgb, var(--rc) 14%, var(--input-bg));
-  box-shadow: 0 0 8px color-mix(in srgb, var(--rc) 25%, transparent);
+  /* Fallback for browsers without color-mix() support */
+  background: rgba(201,168,76,0.08);
+  box-shadow: 0 0 8px rgba(201,168,76,0.15);
+}
+@supports (background: color-mix(in srgb, red 50%, blue)) {
+  .rarity-btn.active {
+    background: color-mix(in srgb, var(--rc) 14%, var(--input-bg));
+    box-shadow: 0 0 8px color-mix(in srgb, var(--rc) 25%, transparent);
+  }
 }
 
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
@@ -431,7 +432,7 @@ input:checked + .slider::before { transform: translateX(22px); background: var(-
   border-radius: var(--radius-sm);
   display: flex; justify-content: center; align-items: center;
   padding: 16px 12px;
-  min-height: 240px;
+  min-height: var(--svg-canvas-h);
   position: relative;
   overflow: hidden;
 }
@@ -441,8 +442,30 @@ input:checked + .slider::before { transform: translateX(22px); background: var(-
   background: radial-gradient(ellipse at center, rgba(201,168,76,0.07), transparent 70%);
   pointer-events: none;
 }
+/* SVG loading placeholder — prevents CLS while svg-data.js loads */
+.visual-canvas-wrap.loading {
+  position: relative;
+}
+.visual-canvas-wrap.loading::after {
+  content: 'Loading visuals...';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cinzel', serif;
+  font-size: 12px;
+  color: var(--text-faint);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  animation: svg-pulse 1.5s ease-in-out infinite;
+}
+@keyframes svg-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
 #visualCanvas { display: flex; justify-content: center; align-items: center; }
-#visualCanvas svg { height: 240px; width: auto; filter: drop-shadow(0 4px 16px rgba(0,0,0,0.6)); }
+#visualCanvas svg { height: var(--svg-canvas-h); width: auto; filter: drop-shadow(0 4px 16px rgba(0,0,0,0.6)); }
 
 .pickers-list { display: flex; flex-direction: column; gap: 6px; }
 .picker-row {
@@ -531,7 +554,7 @@ input:checked + .slider::before { transform: translateX(22px); background: var(-
   border-bottom: 1px solid rgba(139,100,30,0.3);
   margin-bottom: 6px;
 }
-.card-art-area svg { height: 140px; width: auto; }
+.card-art-area svg { height: var(--svg-card-h); width: auto; }
 .card-name {
   font-family: 'Cinzel', serif;
   font-size: 17px; font-weight: 700;
@@ -754,12 +777,73 @@ input:checked + .slider::before { transform: translateX(22px); background: var(-
 }
 .onboard-btn:active { opacity: 0.85; }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-   DESKTOP OVERRIDE (â‰¥520px)
-â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+/* ══════════════════════════════════════════════════════════════════════════════
+   RESPONSIVE BREAKPOINTS
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Phone (<520px): single column, mobile-first layout ── */
+/* (Default styles above handle this) */
+
+/* ── Large Phone / Small Tablet (≥520px): centered with shadow ── */
 @media (min-width: 520px) {
   .app-shell { box-shadow: 0 0 60px rgba(0,0,0,0.8); }
   body { background: #080604; display: flex; align-items: center; justify-content: center; }
+}
+
+/* ── Tablet (≥768px): two-column layout — form left, preview right ── */
+@media (min-width: 768px) {
+  .app-shell { max-width: 760px; }
+  .panels-wrap { overflow: hidden; }
+  .panels-track {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    height: 100%;
+  }
+  .panel { display: none; height: 100%; overflow-y: auto; }
+  .panel.active { display: block; }
+  /* Build + Preview always visible side-by-side */
+  #panel-build, #panel-preview { display: block !important; height: 100%; overflow-y: auto; }
+  /* Hide build & preview nav tabs — both panels are always shown */
+  #tab-build, #tab-preview { display: none; }
+  /* Other tabs swap into the left column */
+  #panel-powers, #panel-visual, #panel-lore { display: none; }
+  #panel-powers.active, #panel-visual.active, #panel-lore.active { display: block !important; }
+  /* Preview panel flex layout */
+  #panel-preview.active { display: flex !important; flex-direction: column; justify-content: space-between; }
+  /* Larger visual canvas */
+  #visualCanvas svg { height: 280px; }
+  .visual-canvas-wrap { min-height: 280px; }
+  .card-art-area svg { height: 160px; }
+  /* Card breathing room */
+  .item-card { margin-bottom: 8px; }
+  .card-name { font-size: 19px; }
+  .card-header { padding: 16px 18px 12px; }
+  .card-body { padding: 14px 16px; }
+}
+
+/* ── Desktop (≥1080px): three-column — build left, center tab, preview right ── */
+@media (min-width: 1080px) {
+  .app-shell { max-width: 1060px; }
+  .panels-track { grid-template-columns: 1fr 1fr 1fr; }
+  /* Build + Preview always visible */
+  #panel-build, #panel-preview { display: block !important; height: 100%; overflow-y: auto; }
+  /* Middle column shows active tab (powers/visual/lore) */
+  #panel-powers, #panel-visual, #panel-lore { display: none; }
+  #panel-powers.active, #panel-visual.active, #panel-lore.active { display: block !important; }
+  /* Hide build & preview nav tabs */
+  #tab-build, #tab-preview { display: none; }
+  /* Larger visual canvas */
+  #visualCanvas svg { height: 320px; }
+  .visual-canvas-wrap { min-height: 320px; }
+  .card-art-area svg { height: 180px; }
+  /* Bigger item card */
+  .card-name { font-size: 20px; }
+  .card-header { padding: 18px 20px 14px; }
+  /* Larger type grid icons */
+  .type-btn { min-height: 68px; }
+  .type-btn .ti { font-size: 24px; }
+  /* More input padding */
+  input[type="text"], input[type="number"], textarea, select { padding: 13px 15px; }
 }
 
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•

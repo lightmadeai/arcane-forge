@@ -56,7 +56,7 @@
   <div class="panels-track" id="panels-track">
 
     <!-- â”€â”€ BUILD â”€â”€ -->
-    <div class="panel" id="panel-build">
+    <div class="panel active" id="panel-build">
 
       <!-- Identity -->
       <div class="card">
@@ -399,10 +399,28 @@
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const PANEL_ORDER = ['build', 'powers', 'visual', 'lore', 'preview'];
 function switchTab(name) {
-  const idx = PANEL_ORDER.indexOf(name);
-  if (idx === -1) return;
-  // Slide the track so the target panel is fully in view
-  document.getElementById('panels-track').style.transform = `translateX(-${idx * 20}%)`;
+  if (!PANEL_ORDER.includes(name)) return;
+  const isWide = window.matchMedia('(min-width: 768px)').matches;
+  if (isWide) {
+    // Tablet/Desktop: build & preview are always visible; only swap middle column tabs
+    const midTabs = ['powers', 'visual', 'lore'];
+    if (midTabs.includes(name)) {
+      midTabs.forEach(t => {
+        const panel = document.getElementById('panel-' + t);
+        if (panel) panel.classList.toggle('active', t === name);
+      });
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      const tab = document.getElementById('tab-' + name);
+      if (tab) tab.classList.add('active');
+      if (name === 'visual') preloadSVGData();
+      if (navigator.vibrate) navigator.vibrate(10);
+    }
+    return;
+  }
+  // Mobile: toggle all panels
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  if (name === 'visual') preloadSVGData();
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
   if (navigator.vibrate) navigator.vibrate(10);
@@ -527,7 +545,14 @@ function init() {
   try {
     if (!localStorage.getItem('arcane-forge-onboarded')) showOnboarding();
   } catch(e) { /* storage blocked â€” skip onboarding */ }
-}
+
+  // Responsive layout: on wide screens, ensure powers tab is active in the middle column
+  if (window.matchMedia('(min-width: 768px)').matches) {
+    const powersPanel = document.getElementById('panel-powers');
+    if (powersPanel) powersPanel.classList.add('active');
+    const powersTab = document.getElementById('tab-powers');
+    if (powersTab) powersTab.classList.add('active');
+  }}
 
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // TYPE & RARITY
@@ -686,30 +711,69 @@ function updateCard() {
   const sb = document.getElementById('cardStatBlock');
   if (stats.length) {
     sb.style.display='flex';
-    sb.innerHTML = stats.map(s=>`<div class="card-stat"><span class="sv">${s.val}</span><span class="sl">${s.lbl}</span></div>`).join('<div style="width:1px;background:rgba(139,100,30,0.3)"></div>');
+    // Targeted DOM rebuild — clears only stat block, avoids full innerHTML
+    while (sb.firstChild) sb.firstChild.remove();
+    stats.forEach((s, i) => {
+      if (i > 0) {
+        const sep = document.createElement('div');
+        sep.style.cssText = 'width:1px;background:rgba(139,100,30,0.3)';
+        sb.appendChild(sep);
+      }
+      const d = document.createElement('div');
+      d.className = 'card-stat';
+      const sv=document.createElement('span');sv.className='sv';sv.textContent=s.val;
+      const sl=document.createElement('span');sl.className='sl';sl.textContent=s.lbl;
+      d.appendChild(sv);d.appendChild(sl);
+      sb.appendChild(d);
+    });
   } else { sb.style.display='none'; }
-
-  const ae = document.getElementById('cardAttunement');
+const ae = document.getElementById('cardAttunement');
   if (state.attune) { ae.style.display=''; ae.textContent = atCls?`Requires Attunement ${atCls}`:'Requires Attunement'; }
   else ae.style.display='none';
 
   const pe = document.getElementById('cardProperties');
+  // Targeted DOM rebuild — avoids innerHTML on every keystroke
+  while (pe.firstChild) pe.firstChild.remove();
   if (!state.properties.length) {
-    pe.innerHTML='<p style="font-style:italic;color:#7a5a30;font-size:12px;text-align:center;padding:6px">No properties defined</p>';
+    const p = document.createElement('p');
+    p.style.cssText = 'font-style:italic;color:#7a5a30;font-size:12px;text-align:center;padding:6px';
+    p.textContent = 'No properties defined';
+    pe.appendChild(p);
   } else {
-    pe.innerHTML = state.properties.filter(p=>p.name||p.desc).map(p=>`
-      <div class="card-prop">
-        <span class="card-prop-name">${esc(p.name||'Property')}</span>
-        <span class="card-prop-type"> (${p.type}${p.type==='charges'?` â€” ${p.charges} charges, ${p.recharge}`:''})</span>
-        <div class="card-prop-desc">${esc(p.desc)}</div>
-      </div><div class="card-divider"></div>`).join('');
+    state.properties.filter(p=>p.name||p.desc).forEach(prop => {
+      const d = document.createElement('div');
+      d.className = 'card-prop';
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'card-prop-name';
+      nameSpan.textContent = prop.name || 'Property';
+      d.appendChild(nameSpan);
+      const typeSpan = document.createElement('span');
+      typeSpan.className = 'card-prop-type';
+      typeSpan.textContent = ' (' + prop.type + (prop.type==='charges' ? ' \u2014 ' + prop.charges + ' charges, ' + prop.recharge : '') + ')';
+      d.appendChild(typeSpan);
+      const descDiv = document.createElement('div');
+      descDiv.className = 'card-prop-desc';
+      descDiv.textContent = prop.desc;
+      d.appendChild(descDiv);
+      pe.appendChild(d);
+      const divider = document.createElement('div');
+      divider.className = 'card-divider';
+      pe.appendChild(divider);
+    });
   }
-
-  const de=document.getElementById('cardDesc'); if(desc){de.style.display='';de.textContent=desc;}else de.style.display='none';
+const de=document.getElementById('cardDesc'); if(desc){de.style.display='';de.textContent=desc;}else de.style.display='none';
   const le=document.getElementById('cardLore'),ld=document.getElementById('cardLoreDivider');
   if(lore){le.style.display='';ld.style.display='';le.textContent='"'+lore+'"';}else{le.style.display='none';ld.style.display='none';}
   const ce=document.getElementById('cardCurse');
-  if(curse){ce.style.display='';ce.innerHTML=`<div class="card-divider"></div><div class="card-prop"><span class="card-prop-name" style="color:#6a1a6a">Curse</span><div class="card-prop-desc" style="color:#4a0a4a">${esc(curse)}</div></div>`;}else ce.style.display='none';
+  if(curse){ce.style.display='';
+    // Targeted DOM rebuild — avoids innerHTML for curse section
+    while(ce.firstChild) ce.firstChild.remove();
+    const divider=document.createElement('div'); divider.className='card-divider'; ce.appendChild(divider);
+    const wrap=document.createElement('div'); wrap.className='card-prop';
+    const cName=document.createElement('span'); cName.className='card-prop-name'; cName.style.color='#6a1a6a'; cName.textContent='Curse'; wrap.appendChild(cName);
+    const cDesc=document.createElement('div'); cDesc.className='card-prop-desc'; cDesc.style.color='#4a0a4a'; cDesc.textContent=curse; wrap.appendChild(cDesc);
+    ce.appendChild(wrap);
+  }else ce.style.display='none';
 
   document.getElementById('cardValue').textContent = value?`Value: ${value}`:'';
   document.getElementById('cardCreator').textContent = creator||'';
@@ -721,14 +785,22 @@ function updateCard() {
 function updateSummary(name, ti, stats, curse) {
   const chips = document.getElementById('summaryChips');
   const rc = RARITY_COLORS[state.rarity];
-  let html = `<span class="chip gold">${esc(name)}</span>`;
-  html += `<span class="chip">${ti.label}</span>`;
-  html += `<span class="chip" style="color:${rc};border-color:${rc+'66'}">${state.rarity}</span>`;
-  if (state.attune) html += `<span class="chip">âš™ Attunement</span>`;
-  if (stats.length) stats.forEach(s=>{ html+=`<span class="chip">${s.val} ${s.lbl}</span>`; });
-  html += `<span class="chip">${state.properties.length} Propert${state.properties.length===1?'y':'ies'}</span>`;
-  if (curse) html += `<span class="chip curse">âš  Cursed</span>`;
-  chips.innerHTML = html;
+  // Targeted DOM rebuild — avoids innerHTML on every keystroke
+  while (chips.firstChild) chips.firstChild.remove();
+  function addChip(cls, text, style) {
+    const s = document.createElement('span');
+    s.className = 'chip' + (cls ? ' ' + cls : '');
+    s.textContent = text;
+    if (style) s.style.cssText = style;
+    chips.appendChild(s);
+  }
+  addChip('gold', name);
+  addChip('', ti.label);
+  addChip('', state.rarity, 'color:'+rc+';border-color:'+rc+'66');
+  if (state.attune) addChip('', '\u2699 Attunement');
+  if (stats.length) stats.forEach(s => addChip('', s.val + ' ' + s.lbl));
+  addChip('', state.properties.length + ' Propert' + (state.properties.length===1?'y':'ies'));
+  if (curse) addChip('curse', '\u26A0 Cursed');
 }
 
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -847,125 +919,41 @@ function showToast(msg){
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // VISUAL SYSTEM
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-const METALS=[
-  {name:'Silver',    dark:'#707070',mid:'#b0b0b0',light:'#e0e0e0',shine:'#ffffff'},
-  {name:'Gold',      dark:'#8B6210',mid:'#C9A84C',light:'#FFD700',shine:'#FFF4AA'},
-  {name:'Bronze',    dark:'#5C3010',mid:'#A0622A',light:'#CD853F',shine:'#EEC080'},
-  {name:'Black Steel',dark:'#080808',mid:'#222222',light:'#404040',shine:'#686868'},
-  {name:'Mithril',   dark:'#2040A0',mid:'#4070C8',light:'#80B0FF',shine:'#C0D8FF'},
-  {name:'Obsidian',  dark:'#0A0015',mid:'#2A0840',light:'#501870',shine:'#9040B0'},
-  {name:'Bone',      dark:'#8B7050',mid:'#C0A070',light:'#E0C89A',shine:'#FFF8E8'},
-];
-const AURAS=[
-  {name:'None',     color:'none',   glow:'none'},
-  {name:'Flame',    color:'#FF5500',glow:'#FF2200'},
-  {name:'Frost',    color:'#44AAFF',glow:'#0055DD'},
-  {name:'Lightning',color:'#FFE844',glow:'#FFAA00'},
-  {name:'Shadow',   color:'#7722CC',glow:'#440099'},
-  {name:'Holy',     color:'#FFEE99',glow:'#FFD700'},
-  {name:'Poison',   color:'#44FF77',glow:'#00AA44'},
-  {name:'Blood',    color:'#CC1111',glow:'#880000'},
-  {name:'Arcane',   color:'#CC44FF',glow:'#9900CC'},
-];
-function mGrad(id,m,v){const x2=v?'0':'1',y2=v?'1':'0';return`<linearGradient id="${id}" x1="0" y1="0" x2="${x2}" y2="${y2}"><stop offset="0%" stop-color="${m.dark}"/><stop offset="40%" stop-color="${m.light}"/><stop offset="70%" stop-color="${m.mid}"/><stop offset="100%" stop-color="${m.dark}"/></linearGradient>`;}
-function gFilter(id,col,r){return`<filter id="${id}" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="${r}" result="blur"/><feFlood flood-color="${col}" flood-opacity="0.65" result="color"/><feComposite in="color" in2="blur" operator="in" result="glow"/><feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`;}
-const BLADES=[
-  {name:'Straight',  svg:m=>`<path d="M80,16 L74,162 L80,176 L86,162 Z" fill="url(#bG)" stroke="${m.dark}" stroke-width="0.5"/><line x1="80" y1="22" x2="80" y2="158" stroke="${m.shine}" stroke-width="0.7" opacity="0.45"/>`},
-  {name:'Curved',    svg:m=>`<path d="M80,16 Q94,82 88,160 L80,176 L74,162 Q61,82 80,16 Z" fill="url(#bG)" stroke="${m.dark}" stroke-width="0.5"/><path d="M80,22 Q90,82 85,157" stroke="${m.shine}" stroke-width="0.8" fill="none" opacity="0.4"/>`},
-  {name:'Broad',     svg:m=>`<path d="M80,16 L64,158 L80,176 L96,158 Z" fill="url(#bG)" stroke="${m.dark}" stroke-width="0.5"/><line x1="80" y1="20" x2="80" y2="155" stroke="${m.shine}" stroke-width="0.7" opacity="0.45"/>`},
-  {name:'Leaf',      svg:m=>`<path d="M80,16 Q97,72 93,140 L80,176 L67,140 Q63,72 80,16 Z" fill="url(#bG)" stroke="${m.dark}" stroke-width="0.5"/><path d="M80,22 Q92,72 89,136" stroke="${m.shine}" stroke-width="0.8" fill="none" opacity="0.38"/>`},
-  {name:'Flamberge', svg:m=>`<path d="M80,16 Q87,38 76,58 Q88,78 77,100 Q88,122 77,143 L80,176 L83,143 Q72,122 83,100 Q72,78 84,58 Q73,38 80,16 Z" fill="url(#bG)" stroke="${m.dark}" stroke-width="0.5"/>`},
-  {name:'Crystal',   svg:m=>`<path d="M80,16 L87,54 L92,96 L87,140 L80,176 L73,140 L68,96 L73,54 Z" fill="url(#bG)" stroke="${m.dark}" stroke-width="0.5"/><line x1="80" y1="16" x2="80" y2="173" stroke="${m.shine}" stroke-width="0.8" opacity="0.55"/>`},
-  {name:'Jagged',    svg:m=>`<path d="M80,16 L75,46 L79,54 L73,84 L78,90 L72,120 L77,126 L73,156 L80,176 L87,156 L83,126 L88,120 L82,90 L87,84 L81,54 L85,46 Z" fill="url(#bG)" stroke="${m.dark}" stroke-width="0.5"/>`},
-];
-const GUARDS=[
-  {name:'Simple',      svg:m=>`<rect x="57" y="173" width="46" height="8" rx="2" fill="url(#mG)" stroke="${m.dark}" stroke-width="0.5"/>`},
-  {name:'Swept Down',  svg:m=>`<path d="M57,173 Q59,191 68,193 L80,180 L92,193 Q101,191 103,173 L103,179 Q101,198 92,199 L80,185 L68,199 Q59,198 57,179 Z" fill="url(#mG)" stroke="${m.dark}" stroke-width="0.5"/>`},
-  {name:'Swept Up',    svg:m=>`<path d="M57,181 Q59,163 68,162 L80,174 L92,162 Q101,163 103,181 L103,175 Q101,157 92,156 L80,169 L68,156 Q59,157 57,175 Z" fill="url(#mG)" stroke="${m.dark}" stroke-width="0.5"/>`},
-  {name:'Dragon Wings',svg:m=>`<path d="M80,175 Q68,164 54,156 Q49,161 51,170 Q60,176 68,179 L80,182 L92,179 Q100,176 109,170 Q111,161 106,156 Q92,164 80,175 Z" fill="url(#mG)" stroke="${m.dark}" stroke-width="0.5"/>`},
-  {name:'Cross',       svg:m=>`<rect x="57" y="173" width="46" height="8" rx="1" fill="url(#mG)" stroke="${m.dark}" stroke-width="0.5"/><rect x="77" y="162" width="6" height="30" rx="1" fill="url(#mG)" stroke="${m.dark}" stroke-width="0.5"/>`},
-  {name:'Minimal',     svg:m=>`<ellipse cx="63" cy="176" rx="7" ry="4" fill="url(#mG)" stroke="${m.dark}" stroke-width="0.5"/><ellipse cx="97" cy="176" rx="7" ry="4" fill="url(#mG)" stroke="${m.dark}" stroke-width="0.5"/>`},
-  {name:'Ornate',      svg:m=>`<path d="M56,171 Q58,167 66,167 Q73,170 80,172 Q87,170 94,167 Q102,167 104,171 L104,180 Q102,185 94,185 Q87,183 80,180 Q73,183 66,185 Q58,185 56,180 Z" fill="url(#mG)" stroke="${m.dark}" stroke-width="0.5"/><circle cx="55" cy="176" r="5" fill="url(#mG)" stroke="${m.dark}" stroke-width="0.5"/><circle cx="105" cy="176" r="5" fill="url(#mG)" stroke="${m.dark}" stroke-width="0.5"/>`},
-];
-const GRIPS=[
-  {name:'Leather',  svg:()=>`<rect x="76" y="181" width="8" height="63" rx="2" fill="#7B3F1A"/><line x1="76" y1="188" x2="84" y2="182" stroke="#5a2a0a" stroke-width="1.5"/><line x1="76" y1="197" x2="84" y2="191" stroke="#5a2a0a" stroke-width="1.5"/><line x1="76" y1="206" x2="84" y2="200" stroke="#5a2a0a" stroke-width="1.5"/><line x1="76" y1="215" x2="84" y2="209" stroke="#5a2a0a" stroke-width="1.5"/><line x1="76" y1="224" x2="84" y2="218" stroke="#5a2a0a" stroke-width="1.5"/><line x1="76" y1="233" x2="84" y2="227" stroke="#5a2a0a" stroke-width="1.5"/><line x1="76" y1="242" x2="84" y2="236" stroke="#5a2a0a" stroke-width="1.5"/>`},
-  {name:'Wire Wrap',svg:()=>`<rect x="77" y="181" width="6" height="63" rx="1" fill="#3a2a1a"/><line x1="77" y1="187" x2="83" y2="182" stroke="#b0b0b0" stroke-width="1"/><line x1="77" y1="193" x2="83" y2="188" stroke="#b0b0b0" stroke-width="1"/><line x1="77" y1="199" x2="83" y2="194" stroke="#b0b0b0" stroke-width="1"/><line x1="77" y1="205" x2="83" y2="200" stroke="#b0b0b0" stroke-width="1"/><line x1="77" y1="211" x2="83" y2="206" stroke="#b0b0b0" stroke-width="1"/><line x1="77" y1="217" x2="83" y2="212" stroke="#b0b0b0" stroke-width="1"/><line x1="77" y1="223" x2="83" y2="218" stroke="#b0b0b0" stroke-width="1"/><line x1="77" y1="229" x2="83" y2="224" stroke="#b0b0b0" stroke-width="1"/>`},
-  {name:'Bone',     svg:()=>`<rect x="76" y="181" width="8" height="63" rx="3" fill="#ddd0b0"/><ellipse cx="80" cy="190" rx="4" ry="3" fill="#c8b090" opacity="0.7"/><ellipse cx="80" cy="203" rx="4" ry="3" fill="#c8b090" opacity="0.7"/><ellipse cx="80" cy="216" rx="4" ry="3" fill="#c8b090" opacity="0.7"/><ellipse cx="80" cy="229" rx="4" ry="3" fill="#c8b090" opacity="0.7"/>`},
-  {name:'Crystal',  svg:()=>`<rect x="76" y="181" width="8" height="63" rx="2" fill="rgba(170,215,255,0.55)" stroke="rgba(200,235,255,0.8)" stroke-width="0.8"/><line x1="80" y1="182" x2="80" y2="243" stroke="rgba(255,255,255,0.65)" stroke-width="1"/>`},
-  {name:'Ornate',   svg:()=>`<path d="M75,181 Q79,186 75,194 Q79,202 75,210 Q79,218 75,226 Q79,234 75,244 L80,244 L85,244 Q81,234 85,226 Q81,218 85,210 Q81,202 85,194 Q81,186 85,181 Z" fill="#8B6210"/>`},
-];
-const POMMELS=[
-  {name:'Round',   svg:m=>`<circle cx="80" cy="254" r="11" fill="url(#mG)" stroke="${m.dark}" stroke-width="0.5"/><circle cx="76" cy="251" r="3" fill="${m.shine}" opacity="0.4"/>`},
-  {name:'Diamond', svg:m=>`<polygon points="80,243 92,254 80,265 68,254" fill="url(#mG)" stroke="${m.dark}" stroke-width="0.5"/>`},
-  {name:'Wheel',   svg:m=>`<circle cx="80" cy="253" r="12" fill="url(#mG)" stroke="${m.dark}" stroke-width="0.5"/><circle cx="80" cy="253" r="4" fill="${m.dark}"/><line x1="80" y1="241" x2="80" y2="265" stroke="${m.dark}" stroke-width="1.5"/><line x1="68" y1="253" x2="92" y2="253" stroke="${m.dark}" stroke-width="1.5"/>`},
-  {name:'Tapered', svg:m=>`<path d="M76,244 L73,264 L80,269 L87,264 L84,244 Z" fill="url(#mG)" stroke="${m.dark}" stroke-width="0.5"/>`},
-  {name:'Gem',     svg:m=>`<polygon points="80,243 91,249 91,259 80,265 69,259 69,249" fill="url(#mG)" stroke="${m.dark}" stroke-width="0.5"/><polygon points="80,243 91,249 80,249 69,249" fill="${m.shine}" opacity="0.35"/>`},
-  {name:'Skull',   svg:m=>`<ellipse cx="80" cy="252" rx="11" ry="9" fill="url(#mG)" stroke="${m.dark}" stroke-width="0.5"/><ellipse cx="75" cy="250" rx="2.5" ry="3" fill="${m.dark}" opacity="0.85"/><ellipse cx="85" cy="250" rx="2.5" ry="3" fill="${m.dark}" opacity="0.85"/><path d="M74,258 L76,256 L78,257 L80,256 L82,257 L84,256 L86,258" stroke="${m.dark}" stroke-width="1" fill="none"/>`},
-];
-const POTION_BOTTLES=[
-  {name:'Round Flask',svg:(lc,sc)=>`<path d="M72,100 L72,155 Q72,178 80,180 Q88,178 88,155 L88,100 Z" fill="${lc}" opacity="0.8"/><path d="M72,100 L72,155 Q72,178 80,180 Q88,178 88,155 L88,100 Z" fill="none" stroke="${sc}" stroke-width="1.5"/><ellipse cx="80" cy="100" rx="8" ry="5" fill="none" stroke="${sc}" stroke-width="1.5"/><rect x="76" y="75" width="8" height="26" rx="1" fill="${sc}"/><rect x="73" y="73" width="14" height="5" rx="2" fill="${sc}"/><ellipse cx="75" cy="145" rx="4" ry="7" fill="rgba(255,255,255,0.18)"/>`},
-  {name:'Teardrop',   svg:(lc,sc)=>`<path d="M80,72 Q100,112 100,152 Q100,184 80,184 Q60,184 60,152 Q60,112 80,72 Z" fill="${lc}" opacity="0.8"/><path d="M80,72 Q100,112 100,152 Q100,184 80,184 Q60,184 60,152 Q60,112 80,72 Z" fill="none" stroke="${sc}" stroke-width="1.5"/><ellipse cx="70" cy="145" rx="5" ry="9" fill="rgba(255,255,255,0.18)"/>`},
-  {name:'Tall Vial',  svg:(lc,sc)=>`<rect x="71" y="82" width="18" height="103" rx="9" fill="${lc}" opacity="0.8"/><rect x="71" y="82" width="18" height="103" rx="9" fill="none" stroke="${sc}" stroke-width="1.5"/><rect x="74" y="65" width="12" height="18" rx="3" fill="${sc}"/><rect x="72" y="63" width="16" height="6" rx="2" fill="${sc}"/>`},
-  {name:'Skull Flask', svg:(lc,sc)=>`<ellipse cx="80" cy="148" rx="22" ry="25" fill="${lc}" opacity="0.8"/><ellipse cx="80" cy="148" rx="22" ry="25" fill="none" stroke="${sc}" stroke-width="1.5"/><ellipse cx="72" cy="143" rx="5" ry="6" fill="${sc}" opacity="0.55"/><ellipse cx="88" cy="143" rx="5" ry="6" fill="${sc}" opacity="0.55"/><path d="M74,158 L77,156 L80,157 L83,156 L86,158" stroke="${sc}" stroke-width="1.2" fill="none"/><rect x="75" y="110" width="10" height="24" rx="3" fill="${sc}"/><rect x="72" y="108" width="16" height="5" rx="2" fill="${sc}"/>`},
-  {name:'Amphora',    svg:(lc,sc)=>`<path d="M65,108 Q58,128 60,155 Q62,178 80,180 Q98,178 100,155 Q102,128 95,108 Q88,95 80,93 Q72,95 65,108 Z" fill="${lc}" opacity="0.8"/><path d="M65,108 Q58,128 60,155 Q62,178 80,180 Q98,178 100,155 Q102,128 95,108 Q88,95 80,93 Q72,95 65,108 Z" fill="none" stroke="${sc}" stroke-width="1.5"/><path d="M62,120 Q54,128 55,140 Q56,145 62,142" fill="none" stroke="${sc}" stroke-width="1.5"/><path d="M98,120 Q106,128 105,140 Q104,145 98,142" fill="none" stroke="${sc}" stroke-width="1.5"/><rect x="76" y="68" width="8" height="26" rx="2" fill="${sc}"/><rect x="73" y="66" width="14" height="5" rx="2" fill="${sc}"/>`},
-];
-const POTION_COLORS=[
-  {name:'Crimson',  liq:'#cc2222',stroke:'#8a0000'},{name:'Sapphire', liq:'#2255ee',stroke:'#001a99'},
-  {name:'Emerald',  liq:'#22bb44',stroke:'#006622'},{name:'Amethyst', liq:'#9933cc',stroke:'#550088'},
-  {name:'Amber',    liq:'#cc8800',stroke:'#885500'},{name:'Midnight', liq:'#1a0a2a',stroke:'#6622aa'},
-  {name:'Icy White',liq:'#aaddff',stroke:'#5599cc'},{name:'Gilded',   liq:'#ddaa00',stroke:'#887700'},
-];
-const STOPPERS=[
-  {name:'Cork',    svg:()=>`<rect x="76" y="56" width="8" height="12" rx="2" fill="#8B6530"/><rect x="74" y="54" width="12" height="5" rx="1" fill="#a07840"/>`},
-  {name:'Crystal', svg:()=>`<polygon points="80,48 86,58 74,58" fill="rgba(180,220,255,0.85)" stroke="rgba(200,240,255,0.9)" stroke-width="1"/>`},
-  {name:'Skull',   svg:()=>`<ellipse cx="80" cy="56" rx="7" ry="6" fill="#e0d0b0" stroke="#8B7050" stroke-width="0.8"/><ellipse cx="77" cy="54" rx="2" ry="2.5" fill="#3a2a1a" opacity="0.8"/><ellipse cx="83" cy="54" rx="2" ry="2.5" fill="#3a2a1a" opacity="0.8"/>`},
-  {name:'Gem',     svg:()=>`<polygon points="80,48 87,55 80,62 73,55" fill="#cc4444" stroke="#880000" stroke-width="0.8"/>`},
-  {name:'Wax Seal',svg:()=>`<circle cx="80" cy="58" r="8" fill="#cc2222" stroke="#880000" stroke-width="0.8"/><text x="80" y="62" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="8" font-family="serif">âœ¦</text>`},
-];
-const RING_BANDS=[
-  {name:'Simple',      svg:m=>`<ellipse cx="80" cy="175" rx="38" ry="15" fill="none" stroke="url(#mG)" stroke-width="11"/>`},
-  {name:'Braided',     svg:m=>`<ellipse cx="80" cy="175" rx="38" ry="15" fill="none" stroke="url(#mG)" stroke-width="10"/><ellipse cx="80" cy="175" rx="38" ry="15" fill="none" stroke="${m.dark}" stroke-width="2" stroke-dasharray="7,5" opacity="0.7"/>`},
-  {name:'Thorned',     svg:m=>`<ellipse cx="80" cy="175" rx="38" ry="15" fill="none" stroke="url(#mG)" stroke-width="9"/><ellipse cx="80" cy="175" rx="38" ry="15" fill="none" stroke="${m.dark}" stroke-width="3.5" stroke-dasharray="2,9" opacity="0.9"/>`},
-  {name:'Rune-etched', svg:m=>`<ellipse cx="80" cy="175" rx="38" ry="15" fill="none" stroke="url(#mG)" stroke-width="11"/><ellipse cx="80" cy="175" rx="38" ry="15" fill="none" stroke="${m.shine}" stroke-width="1.5" stroke-dasharray="3,4" opacity="0.5"/>`},
-  {name:'Dragon Scale',svg:m=>`<ellipse cx="80" cy="175" rx="38" ry="15" fill="none" stroke="url(#mG)" stroke-width="12"/><ellipse cx="80" cy="175" rx="38" ry="15" fill="none" stroke="${m.dark}" stroke-width="2.5" stroke-dasharray="6,3" opacity="0.7"/>`},
-];
-const RING_STONES=[
-  {name:'None',    col:null,hi:null,svg:()=>''},
-  {name:'Ruby',    col:'#cc1122',hi:'#ff6677',svg:(c,h)=>`<ellipse cx="80" cy="136" rx="14" ry="10" fill="${c}" stroke="#880000" stroke-width="1"/><ellipse cx="75" cy="133" rx="5" ry="4" fill="${h}" opacity="0.35"/>`},
-  {name:'Sapphire',col:'#1133cc',hi:'#5577ff',svg:(c,h)=>`<ellipse cx="80" cy="136" rx="14" ry="10" fill="${c}" stroke="#000088" stroke-width="1"/><ellipse cx="75" cy="133" rx="5" ry="4" fill="${h}" opacity="0.35"/>`},
-  {name:'Emerald', col:'#117722',hi:'#44cc66',svg:(c,h)=>`<ellipse cx="80" cy="136" rx="14" ry="10" fill="${c}" stroke="#004400" stroke-width="1"/><ellipse cx="75" cy="133" rx="5" ry="4" fill="${h}" opacity="0.35"/>`},
-  {name:'Amethyst',col:'#7722aa',hi:'#cc66ff',svg:(c,h)=>`<ellipse cx="80" cy="136" rx="14" ry="10" fill="${c}" stroke="#440066" stroke-width="1"/><ellipse cx="75" cy="133" rx="5" ry="4" fill="${h}" opacity="0.35"/>`},
-  {name:'Diamond', col:'#ddeeff',hi:'#ffffff',svg:(c,h)=>`<ellipse cx="80" cy="136" rx="14" ry="10" fill="${c}" stroke="#aabbcc" stroke-width="1"/><ellipse cx="75" cy="133" rx="5" ry="4" fill="${h}" opacity="0.6"/>`},
-  {name:'Onyx',    col:'#111111',hi:'#555555',svg:(c,h)=>`<ellipse cx="80" cy="136" rx="14" ry="10" fill="${c}" stroke="#000000" stroke-width="1"/><ellipse cx="75" cy="133" rx="4" ry="3" fill="${h}" opacity="0.3"/>`},
-];
-const WAND_SHAFTS=[
-  {name:'Straight',  svg:m=>`<rect x="78" y="60" width="4" height="185" rx="2" fill="url(#mG)" stroke="${m.dark}" stroke-width="0.5"/>`},
-  {name:'Tapered',   svg:m=>`<path d="M77,60 L76,245 L80,248 L84,245 L83,60 Z" fill="url(#mG)" stroke="${m.dark}" stroke-width="0.5"/>`},
-  {name:'Gnarled',   svg:m=>`<path d="M79,60 Q76,90 80,120 Q83,150 78,180 Q81,210 79,245 L81,245 Q83,210 81,180 Q76,150 82,120 Q77,90 81,60 Z" fill="url(#mG)" stroke="${m.dark}" stroke-width="0.5"/>`},
-  {name:'Faceted',   svg:m=>`<path d="M78,60 L76,120 L77,180 L79,245 L81,245 L83,180 L84,120 L82,60 Z" fill="url(#bG)" stroke="${m.dark}" stroke-width="0.5"/>`},
-  {name:'Bone Staff',svg:()=>`<rect x="78" y="60" width="4" height="185" rx="2" fill="#ddd0b0" stroke="#8B7050" stroke-width="0.5"/><ellipse cx="80" cy="100" rx="5" ry="4" fill="#c8b090" opacity="0.8"/><ellipse cx="80" cy="148" rx="5" ry="4" fill="#c8b090" opacity="0.8"/>`},
-];
-const WAND_TIPS=[
-  {name:'Crystal Orb',svg:a=>`<circle cx="80" cy="42" r="20" fill="rgba(180,220,255,0.2)" stroke="${a.color==='none'?'#4488aa':a.color}" stroke-width="1.5"/><circle cx="80" cy="42" r="13" fill="rgba(180,220,255,0.35)"/><circle cx="74" cy="36" r="5" fill="rgba(255,255,255,0.28)"/>`},
-  {name:'Dragon Claw',svg:a=>`<path d="M80,20 Q86,28 84,40 L80,58 L76,40 Q74,28 80,20 Z" fill="${a.color==='none'?'#8844aa':a.color}" opacity="0.85"/><path d="M72,25 Q75,34 72,43 L70,56 L74,43 Q77,34 76,25 Z" fill="${a.color==='none'?'#8844aa':a.color}" opacity="0.6"/><path d="M88,25 Q85,34 88,43 L90,56 L86,43 Q83,34 84,25 Z" fill="${a.color==='none'?'#8844aa':a.color}" opacity="0.6"/>`},
-  {name:'Star Burst', svg:a=>`<polygon points="80,18 83,30 95,30 85,37 89,50 80,42 71,50 75,37 65,30 77,30" fill="${a.color==='none'?'#ddaa44':a.color}" opacity="0.88"/>`},
-  {name:'Skull',      svg:_=>`<ellipse cx="80" cy="36" rx="18" ry="16" fill="url(#mG)"/><ellipse cx="72" cy="33" rx="5" ry="6" fill="#1a0a00" opacity="0.85"/><ellipse cx="88" cy="33" rx="5" ry="6" fill="#1a0a00" opacity="0.85"/><path d="M72,46 L75,44 L78,45 L80,44 L82,45 L85,44 L88,46" stroke="#1a0a00" stroke-width="1.2" fill="none"/>`},
-  {name:'Flame',      svg:a=>`<path d="M80,15 Q90,25 86,38 Q92,30 88,44 Q86,52 80,56 Q74,52 72,44 Q68,30 74,38 Q70,25 80,15 Z" fill="${a.color==='none'?'#FF5500':a.color}" opacity="0.9"/>`},
-];
-const MISC_FRAMES=[
-  {name:'Round',    svg:m=>`<circle cx="80" cy="150" r="62" fill="none" stroke="url(#mG)" stroke-width="6"/><circle cx="80" cy="150" r="54" fill="none" stroke="${m.shine}" stroke-width="0.6" opacity="0.25"/>`},
-  {name:'Hexagonal',svg:m=>`<polygon points="80,88 132,118 132,178 80,208 28,178 28,118" fill="none" stroke="url(#mG)" stroke-width="6"/><polygon points="80,96 125,122 125,174 80,200 35,174 35,122" fill="none" stroke="${m.shine}" stroke-width="0.6" opacity="0.25"/>`},
-  {name:'Diamond',  svg:m=>`<polygon points="80,85 136,150 80,215 24,150" fill="none" stroke="url(#mG)" stroke-width="6"/><polygon points="80,93 128,150 80,207 32,150" fill="none" stroke="${m.shine}" stroke-width="0.6" opacity="0.25"/>`},
-  {name:'Double Ring',svg:m=>`<circle cx="80" cy="150" r="62" fill="none" stroke="url(#mG)" stroke-width="4"/><circle cx="80" cy="150" r="50" fill="none" stroke="url(#mG)" stroke-width="2"/><line x1="80" y1="88" x2="80" y2="212" stroke="${m.mid}" stroke-width="0.7" opacity="0.3"/><line x1="18" y1="150" x2="142" y2="150" stroke="${m.mid}" stroke-width="0.7" opacity="0.3"/><line x1="35" y1="97" x2="125" y2="203" stroke="${m.mid}" stroke-width="0.7" opacity="0.3"/><line x1="125" y1="97" x2="35" y2="203" stroke="${m.mid}" stroke-width="0.7" opacity="0.3"/>`},
-];
-const MISC_CENTERS=[
-  {name:'Magic Eye', svg:a=>`<ellipse cx="80" cy="150" rx="28" ry="18" fill="#0a0510"/><ellipse cx="80" cy="150" rx="18" ry="12" fill="${a.color==='none'?'#9944ff':a.color}" opacity="0.6"/><ellipse cx="80" cy="150" rx="10" ry="10" fill="#0a0510"/><circle cx="80" cy="150" r="6" fill="${a.glow==='none'?'#cc66ff':a.glow}" opacity="0.85"/>`},
-  {name:'Rune',      svg:a=>`<text x="80" y="165" text-anchor="middle" fill="${a.color==='none'?'#c9a84c':a.color}" font-size="52" font-family="serif" opacity="0.88">áš </text>`},
-  {name:'Pentagram', svg:a=>{const col=a.color==='none'?'#9944ff':a.color;return`<circle cx="80" cy="150" r="55" fill="none" stroke="${col}" stroke-width="1" opacity="0.45"/><line x1="80" y1="95" x2="111" y2="192" stroke="${col}" stroke-width="1.4" opacity="0.88"/><line x1="130" y1="134" x2="49" y2="192" stroke="${col}" stroke-width="1.4" opacity="0.88"/><line x1="111" y1="192" x2="31" y2="134" stroke="${col}" stroke-width="1.4" opacity="0.88"/><line x1="49" y1="192" x2="80" y2="95" stroke="${col}" stroke-width="1.4" opacity="0.88"/><line x1="31" y1="134" x2="130" y2="134" stroke="${col}" stroke-width="1.4" opacity="0.88"/><polygon points="92,134 99,156 80,170 61,156 68,134" fill="none" stroke="${col}" stroke-width="0.8" opacity="0.35"/><circle cx="80" cy="150" r="2.5" fill="${col}" opacity="0.65"/><circle cx="80" cy="95" r="2" fill="${col}" opacity="0.55"/><circle cx="130" cy="134" r="2" fill="${col}" opacity="0.55"/><circle cx="111" cy="192" r="2" fill="${col}" opacity="0.55"/><circle cx="49" cy="192" r="2" fill="${col}" opacity="0.55"/><circle cx="31" cy="134" r="2" fill="${col}" opacity="0.55"/>`}},
-  {name:'Infinity',  svg:a=>`<path d="M50,150 Q50,126 68,126 Q88,126 80,150 Q72,174 92,174 Q110,174 110,150 Q110,126 92,126 Q72,126 80,150 Q88,174 68,174 Q50,174 50,150 Z" fill="none" stroke="${a.color==='none'?'#9944ff':a.color}" stroke-width="2.5" opacity="0.88"/>`},
-  {name:'Dragon Seal',svg:a=>`<circle cx="80" cy="150" r="32" fill="none" stroke="${a.color==='none'?'#c9a84c':a.color}" stroke-width="1.5" opacity="0.7"/><text x="80" y="162" text-anchor="middle" font-size="38" opacity="0.8">ðŸ‰</text>`},
-  {name:'Crystal',   svg:a=>`<polygon points="80,112 96,134 96,166 80,188 64,166 64,134" fill="${a.color==='none'?'#9944ff':a.color}" opacity="0.25" stroke="${a.glow==='none'?'#cc66ff':a.glow}" stroke-width="1.5"/>`},
-];
+// SVG data arrays — populated on first access via loadSVGData()
+// See svg-data.js for the actual array contents
+let METALS=[]; let AURAS=[]; let BLADES=[]; let GUARDS=[]; let GRIPS=[]; let POMMELS=[];
+let POTION_BOTTLES=[]; let POTION_COLORS=[]; let STOPPERS=[];
+let RING_BANDS=[]; let RING_STONES=[]; let WAND_SHAFTS=[]; let WAND_TIPS=[];
+let MISC_FRAMES=[]; let MISC_CENTERS=[];
+
+// Lazy-loading system: SVG data is only fetched when a type first needs it
+let _svgLoaded = {};
+function loadSVGData(type) {
+  if (_svgLoaded[type]) return Promise.resolve();
+  if (_svgLoaded._all) return Promise.resolve();
+  // If already loaded, mark all as loaded
+  if (METALS.length > 0) { _svgLoaded._all = true; return Promise.resolve(); }
+  // If a load is already in progress, return the existing promise
+  if (_svgLoaded._pending) return _svgLoaded._pending;
+  _svgLoaded._pending = new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'svg-data.js';
+    s.onload = () => { _svgLoaded._all = true; _svgLoaded._pending = null; resolve(); };
+    s.onerror = () => { _svgLoaded._pending = null; reject(new Error('Failed to load SVG data')); };
+    document.head.appendChild(s);
+  });
+  return _svgLoaded._pending;
+}
+// Preload on first touch of Visual tab
+let _svgPreloadStarted = false;
+function preloadSVGData() {
+  if (_svgPreloadStarted) return;
+  _svgPreloadStarted = true;
+  loadSVGData('all');
+}
+
+function mGrad(id,m,v){const x2=v?'0':'1',y2=v?'1':'0';return<linearGradient id="" x1="0" y1="0" x2="" y2=""><stop offset="0%" stop-color=""/><stop offset="40%" stop-color=""/><stop offset="70%" stop-color=""/><stop offset="100%" stop-color=""/></linearGradient>;}
+function gFilter(id,col,r){return<filter id="" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="" result="blur"/><feFlood flood-color="" flood-opacity="0.65" result="color"/><feComposite in="color" in2="blur" operator="in" result="glow"/><feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge></filter>;}
 
 const VISUAL_COMPONENTS={
   weapon:[{id:'aura',label:'Aura',list:AURAS,clr:true},{id:'blade',label:'Blade',list:BLADES},{id:'guard',label:'Guard',list:GUARDS},{id:'grip',label:'Grip',list:GRIPS},{id:'pommel',label:'Pommel',list:POMMELS},{id:'metal',label:'Metal',list:METALS,clr:true}],
@@ -984,7 +972,7 @@ function getVI(type,cid){ensureVS(type);return state.visual[type][cid]||0;}
 function cycleVisual(type,cid,dir){
   ensureVS(type);
   const comp=getVC(type).find(c=>c.id===cid);
-  if(!comp)return;
+  if(!comp||!comp.list.length)return;
   state.visual[type][cid]=((state.visual[type][cid]||0)+dir+comp.list.length)%comp.list.length;
   renderVisualPickers(type); renderVisualCanvas(type);
   const w=document.getElementById('cardArtArea');
@@ -993,6 +981,7 @@ function cycleVisual(type,cid,dir){
 }
 
 function buildItemSVG(type,vis){
+  if(!METALS.length) return ''; // SVG data not loaded yet
   const m=METALS[vis.metal||0]||METALS[0], a=AURAS[vis.aura||0]||AURAS[0];
   let defs=mGrad('mG',m,false)+mGrad('bG',m,true);
   if(a.color!=='none') defs+=gFilter('gF',a.color,6);
@@ -1055,38 +1044,68 @@ function renderVisualCanvas(type){
 
 function renderVisualPickers(type){
   const con=document.getElementById('componentPickers'); if(!con)return;
-  ensureVS(type); const comps=getVC(type); con.innerHTML='';
+  ensureVS(type); const comps=getVC(type);
+  // Targeted DOM rebuild — clear then append with DOM API
+  while(con.firstChild) con.firstChild.remove();
   comps.forEach(comp=>{
     const idx=getVI(type,comp.id), item=comp.list[idx], total=comp.list.length;
-    // Build color swatch for color-type options
-    let swatchHTML='';
+    const row=document.createElement('div'); row.className='picker-row';
+
+    const lbl=document.createElement('span'); lbl.className='picker-lbl'; lbl.textContent=comp.label;
+    row.appendChild(lbl);
+
+    const btnL=document.createElement('button'); btnL.className='picker-arrow-btn'; btnL.innerHTML='&#9664;';
+    btnL.onclick=()=>cycleVisual(type,comp.id,-1);
+    row.appendChild(btnL);
+
+    const center=document.createElement('div'); center.className='picker-center';
+    const nameRow=document.createElement('div'); nameRow.className='picker-name-row';
+    // Color swatch
     if(comp.clr && item){
       const col=item.color||item.liq||item.mid||null;
       if(col && col!=='none'){
-        swatchHTML=`<span class="picker-swatch" style="background:${col};color:${col}"></span>`;
+        const swatch=document.createElement('span'); swatch.className='picker-swatch';
+        swatch.style.background=col; swatch.style.color=col;
+        nameRow.appendChild(swatch);
       }
     }
-    const row=document.createElement('div'); row.className='picker-row';
-    row.innerHTML=`
-      <span class="picker-lbl">${comp.label}</span>
-      <button class="picker-arrow-btn" onclick="cycleVisual('${type}','${comp.id}',-1)">&#9664;</button>
-      <div class="picker-center">
-        <div class="picker-name-row">
-          ${swatchHTML}
-          <span class="picker-val">${item?item.name:'â€”'}</span>
-        </div>
-        <span class="picker-count">${idx+1} of ${total}</span>
-      </div>
-      <button class="picker-arrow-btn" onclick="cycleVisual('${type}','${comp.id}',1)">&#9654;</button>`;
+    const valSpan=document.createElement('span'); valSpan.className='picker-val';
+    valSpan.textContent=item?item.name:'\u2014';
+    nameRow.appendChild(valSpan);
+    center.appendChild(nameRow);
+
+    const countSpan=document.createElement('span'); countSpan.className='picker-count';
+    countSpan.textContent=(idx+1)+' of '+total;
+    center.appendChild(countSpan);
+    row.appendChild(center);
+
+    const btnR=document.createElement('button'); btnR.className='picker-arrow-btn'; btnR.innerHTML='&#9654;';
+    btnR.onclick=()=>cycleVisual(type,comp.id,1);
+    row.appendChild(btnR);
+
     con.appendChild(row);
   });
 }
 
 function initVisual(type){
+  // Ensure SVG data is loaded; show loading placeholder while fetching
+  if (METALS.length === 0) {
+    const wrap = document.querySelector('.visual-canvas-wrap');
+    if (wrap) wrap.classList.add('loading');
+    loadSVGData(type).then(() => {
+      if (wrap) wrap.classList.remove('loading');
+      _renderVisual(type);
+    });
+    return;
+  }
+  _renderVisual(type);
+}
+
+function _renderVisual(type){
   ensureVS(type);
   renderVisualPickers(type);
   renderVisualCanvas(type);
-  // Always show card art â€” even on first load with default visual state
+  // Always show card art even on first load with default visual state
   const w = document.getElementById('cardArtArea');
   if (w) {
     const svg = buildItemSVG(type, state.visual[type]);
@@ -1147,11 +1166,9 @@ function restoreState(s) {
   // initVisual re-renders pickers + canvas using the restored state.visual â€” order matters
   initVisual(state.type);
   // Explicitly refresh the card art area so the saved visual shows on the Preview tab
+  // Card art is already rendered by initVisual() above
   const artArea = document.getElementById('cardArtArea');
-  if (artArea) {
-    artArea.innerHTML = buildItemSVG(state.type, state.visual[state.type] || {});
-    artArea.style.display = '';
-  }
+  if (artArea) artArea.style.display = '';
   updateCard();
 }
 
@@ -1221,25 +1238,39 @@ function deleteFromLibrary(id) {
 function renderLibrary() {
   const lib  = getLibrary();
   const list = document.getElementById('libraryList');
+  // Targeted DOM rebuild
+  while (list.firstChild) list.firstChild.remove();
   if (!lib.length) {
-    list.innerHTML = '<div class="sheet-empty">No saved items yet.<br>Tap "Save Current" to add one.</div>';
+    const empty = document.createElement('div');
+    empty.className = 'sheet-empty';
+    empty.innerHTML = 'No saved items yet.<br>Tap "Save Current" to add one.';
+    list.appendChild(empty);
     return;
   }
   const rc = RARITY_COLORS;
-  list.innerHTML = lib.map(item => {
-    const ti   = ITEM_TYPES.find(t => t.id === item.type) || ITEM_TYPES[ITEM_TYPES.length - 1];
-    const col  = rc[item.rarity] || '#aaa';
-    return `<div class="lib-item">
-      <span class="lib-icon">${ti.icon}</span>
-      <div class="lib-info">
-        <div class="lib-name">${esc(item.name)}</div>
-        <div class="lib-meta" style="color:${col}">${item.rarity}</div>
-        <div class="lib-meta">${ti.label} &middot; ${item.savedAt}</div>
-      </div>
-      <button class="lib-load" onclick="loadFromLibrary(${item.id})">Load</button>
-      <button class="lib-del"  onclick="deleteFromLibrary(${item.id})">âœ•</button>
-    </div>`;
-  }).join('');
+  lib.forEach(item => {
+    const ti = ITEM_TYPES.find(t => t.id === item.type) || ITEM_TYPES[ITEM_TYPES.length - 1];
+    const col = rc[item.rarity] || '#aaa';
+    const d = document.createElement('div'); d.className = 'lib-item';
+    // Icon may contain SVG markup, innerHTML is necessary here
+    const icon = document.createElement('span'); icon.className = 'lib-icon'; icon.innerHTML = ti.icon;
+    d.appendChild(icon);
+    const info = document.createElement('div'); info.className = 'lib-info';
+    const nameEl = document.createElement('div'); nameEl.className = 'lib-name'; nameEl.textContent = item.name;
+    info.appendChild(nameEl);
+    const meta1 = document.createElement('div'); meta1.className = 'lib-meta'; meta1.style.color = col; meta1.textContent = item.rarity;
+    info.appendChild(meta1);
+    const meta2 = document.createElement('div'); meta2.className = 'lib-meta'; meta2.textContent = ti.label + ' \u00B7 ' + item.savedAt;
+    info.appendChild(meta2);
+    d.appendChild(info);
+    const loadBtn = document.createElement('button'); loadBtn.className = 'lib-load'; loadBtn.textContent = 'Load';
+    loadBtn.onclick = () => loadFromLibrary(item.id);
+    d.appendChild(loadBtn);
+    const delBtn = document.createElement('button'); delBtn.className = 'lib-del'; delBtn.textContent = '\u2715';
+    delBtn.onclick = () => deleteFromLibrary(item.id);
+    d.appendChild(delBtn);
+    list.appendChild(d);
+  });
 }
 
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -1282,7 +1313,7 @@ async function exportAsImage() {
     // Ensure preview tab is active so card is fully visible in the DOM
     switchTab('preview');
     // Wait for CSS transition + layout reflow â€” rAF ensures paint, then 220ms for slow devices
-    await new Promise(r => requestAnimationFrame(() => setTimeout(r, 220)));
+    await new Promise(r => requestAnimationFrame(() => setTimeout(r, 50)));
 
     const canvas = await h2c(card, {
       backgroundColor: null,
@@ -1339,6 +1370,30 @@ function downloadBlob(blob, baseName) {
 // BOOT
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 init();
+
+// Handle responsive layout transitions on resize
+let _lastWide = window.matchMedia('(min-width: 768px)').matches;
+window.addEventListener('resize', () => {
+  const isWide = window.matchMedia('(min-width: 768px)').matches;
+  if (isWide !== _lastWide) {
+    _lastWide = isWide;
+    if (isWide) {
+      // Entering wide layout: activate powers tab in middle column, ensure build+preview visible
+      const powersPanel = document.getElementById('panel-powers');
+      if (powersPanel) powersPanel.classList.add('active');
+      const powersTab = document.getElementById('tab-powers');
+      if (powersTab) powersTab.classList.add('active');
+    } else {
+      // Entering mobile layout: only one panel active (default to build)
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      const buildPanel = document.getElementById('panel-build');
+      if (buildPanel) buildPanel.classList.add('active');
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      const buildTab = document.getElementById('tab-build');
+      if (buildTab) buildTab.classList.add('active');
+    }
+  }
+});
 </script>
 </body>
 </html>
