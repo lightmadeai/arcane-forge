@@ -61,16 +61,16 @@
       <!-- Identity -->
       <div class="card">
         <div class="card-head" onclick="toggleCard(this)">
-          <span class="card-head-icon">âœ¦</span>
+          <span class="card-head-icon">✦</span>
           <span class="card-head-title">Item Identity</span>
-          <span class="card-chevron">â–¾</span>
+          <span class="card-chevron">▾</span>
         </div>
         <div class="card-body">
           <div class="field">
             <span class="field-label">Item Name</span>
             <div class="name-row">
               <input type="text" id="itemName" placeholder="e.g. Flamebrand of the Fallen King" oninput="updateCardDebounced()">
-              <button class="btn btn-outline btn-sm" onclick="generateName()">ðŸŽ²</button>
+              <button class="btn btn-outline btn-sm" onclick="generateName()">🎲</button>
             </div>
           </div>
           <div class="row-2">
@@ -91,7 +91,7 @@
         <div class="card-head" onclick="toggleCard(this)">
           <span class="card-head-icon">⚔️</span>
           <span class="card-head-title">Item Type</span>
-          <span class="card-chevron">â–¾</span>
+          <span class="card-chevron">▾</span>
         </div>
         <div class="card-body">
           <div class="type-grid" id="typeGrid"></div>
@@ -164,9 +164,9 @@
       <!-- Rarity -->
       <div class="card">
         <div class="card-head" onclick="toggleCard(this)">
-          <span class="card-head-icon">âœ¦</span>
+          <span class="card-head-icon">✦</span>
           <span class="card-head-title">Rarity & Attunement</span>
-          <span class="card-chevron">â–¾</span>
+          <span class="card-chevron">▾</span>
         </div>
         <div class="card-body">
           <div class="field">
@@ -195,7 +195,7 @@
         <div class="card-head" onclick="toggleCard(this)">
           <span class="card-head-icon">✨</span>
           <span class="card-head-title">Magical Properties</span>
-          <span class="card-chevron">â–¾</span>
+          <span class="card-chevron">▾</span>
         </div>
         <div class="card-body">
           <div class="props-list" id="propertiesList"></div>
@@ -207,7 +207,7 @@
         <div class="card-head" onclick="toggleCard(this)">
           <span class="card-head-icon">⚡</span>
           <span class="card-head-title">Quick Suggestions</span>
-          <span class="card-chevron">â–¾</span>
+          <span class="card-chevron">▾</span>
         </div>
         <div class="card-body">
           <div class="suggestions" id="suggestions"></div>
@@ -223,7 +223,7 @@
         <div class="card-head" onclick="toggleCard(this)">
           <span class="card-head-icon">🎨</span>
           <span class="card-head-title">Visual Appearance</span>
-          <span class="card-chevron">â–¾</span>
+          <span class="card-chevron">▾</span>
         </div>
         <div class="card-body">
           <div class="visual-canvas-wrap">
@@ -242,7 +242,7 @@
         <div class="card-head" onclick="toggleCard(this)">
           <span class="card-head-icon">📜</span>
           <span class="card-head-title">Description & Lore</span>
-          <span class="card-chevron">â–¾</span>
+          <span class="card-chevron">▾</span>
         </div>
         <div class="card-body">
           <div class="field">
@@ -348,33 +348,33 @@
 <!-- â”€â”€ ONBOARDING MODAL (first launch only) â”€â”€ -->
 <div class="onboard-backdrop" id="onboardBackdrop">
   <div class="onboard-sheet">
-    <div class="onboard-logo">âš—ï¸</div>
+    <div class="onboard-logo">⚒️</div>
     <div class="onboard-title">Arcane Forge</div>
     <div class="onboard-sub">Craft legendary magical items for your D&amp;D campaign</div>
     <div class="onboard-tips">
       <div class="onboard-tip">
-        <div class="onboard-tip-icon">ðŸŽ²</div>
+        <div class="onboard-tip-icon">🎲</div>
         <div class="onboard-tip-text">
           <div class="onboard-tip-title">Need Inspiration?</div>
           <div class="onboard-tip-desc">Tap the dice button to instantly generate a complete random magical item â€” name, powers, lore, and artwork.</div>
         </div>
       </div>
       <div class="onboard-tip">
-        <div class="onboard-tip-icon">âš”ï¸</div>
+        <div class="onboard-tip-icon">⚔️</div>
         <div class="onboard-tip-text">
           <div class="onboard-tip-title">Build From Scratch</div>
           <div class="onboard-tip-desc">Use the five tabs to craft every detail â€” type, powers, appearance, lore, and a shareable item card.</div>
         </div>
       </div>
       <div class="onboard-tip">
-        <div class="onboard-tip-icon">ðŸ“š</div>
+        <div class="onboard-tip-icon">📖</div>
         <div class="onboard-tip-text">
           <div class="onboard-tip-title">Save Your Collection</div>
           <div class="onboard-tip-desc">Tap the book icon to save items to your library and load them anytime â€” even offline.</div>
         </div>
       </div>
     </div>
-    <button class="onboard-btn" onclick="dismissOnboarding()">Begin Forging âš”ï¸</button>
+    <button class="onboard-btn" onclick="dismissOnboarding()">Begin Forging ⚔️</button>
   </div>
 </div>
 
@@ -383,8 +383,8 @@
 <div class="bottom-sheet" id="librarySheet">
   <div class="sheet-handle"></div>
   <div class="sheet-header">
-    <span class="sheet-title">ðŸ“š My Items</span>
-    <button class="sheet-save-btn" onclick="saveToLibrary()">ðŸ’¾ Save Current</button>
+    <span class="sheet-title">📖 My Items</span>
+    <button class="sheet-save-btn" onclick="saveToLibrary()">💾 Save Current</button>
   </div>
   <div class="sheet-body" id="libraryList">
     <div class="sheet-empty">No saved items yet.<br>Tap "Save Current" to save this item.</div>
@@ -434,26 +434,26 @@ function toggleCard(head) {
 // DATA
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const ITEM_TYPES = [
-  { id:'weapon',  label:'Weapon',   icon:'âš”ï¸' },
+  { id:'weapon',  label:'Weapon',   icon:'🛠️' },
   { id:'armor',   label:'Armor',    icon:`<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l2.5 4v5c0 4-2.5 7.5-5.5 8.5-3-1-5.5-4.5-5.5-8.5V7z"/><path d="M5.5 7c-2 1-2.5 3-1.5 5"/><path d="M18.5 7c2 1 2.5 3 1.5 5"/><path d="M9.5 4c.5-.8 4.5-.8 5 0" stroke-width="1.2" opacity=".7"/></svg>` },
-  { id:'wand',    label:'Wand',     icon:'ðŸª„' },
+  { id:'wand',    label:'Wand',     icon:'🪄' },
   { id:'staff',   label:'Staff',    icon:`<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 21.5c2-4 5.5-9 10-16"/><ellipse cx="17" cy="4" rx="2.2" ry="1.4" fill="currentColor" stroke="none"/><path d="M8.5 17.5c.5-.9 1.8-.6 1.4.8" stroke-width="1.3"/><path d="M11.5 12c.5-.9 1.8-.6 1.4.8" stroke-width="1.3"/></svg>` },
-  { id:'ring',    label:'Ring',     icon:'ðŸ’' },
-  { id:'amulet',  label:'Amulet',   icon:'ðŸ“¿' },
-  { id:'cloak',   label:'Cloak',    icon:'ðŸª½' },
-  { id:'boots',   label:'Boots',    icon:'ðŸ‘¢' },
-  { id:'gloves',  label:'Gloves',   icon:'ðŸ§¤' },
+  { id:'ring',    label:'Ring',     icon:'💍' },
+  { id:'amulet',  label:'Amulet',   icon:'📿' },
+  { id:'cloak',   label:'Cloak',    icon:'🧣' },
+  { id:'boots',   label:'Boots',    icon:'👢' },
+  { id:'gloves',  label:'Gloves',   icon:'🧤' },
   { id:'helmet',  label:'Helmet',   icon:`<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13V9a7 7 0 0 1 14 0v4"/><path d="M4 13h16v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-5z"/><line x1="7" y1="16.5" x2="17" y2="16.5"/><line x1="4" y1="13" x2="20" y2="13"/></svg>` },
-  { id:'shield',  label:'Shield',   icon:'ðŸ›¡' },
-  { id:'potion',  label:'Potion',   icon:'âš—ï¸' },
-  { id:'scroll',  label:'Scroll',   icon:'ðŸ“œ' },
-  { id:'orb',     label:'Orb',      icon:'ðŸ”®' },
-  { id:'rod',     label:'Rod',      icon:'ðŸªˆ' },
-  { id:'tome',    label:'Tome',     icon:'ðŸ“–' },
-  { id:'gem',     label:'Gem',      icon:'ðŸ’Ž' },
-  { id:'misc',    label:'Wondrous', icon:'âœ¨' },
-  { id:'bag',     label:'Bag',      icon:'ðŸŽ’' },
-  { id:'arrow',   label:'Arrow',    icon:'ðŸ¹' },
+  { id:'shield',  label:'Shield',   icon:'🛡️' },
+  { id:'potion',  label:'Potion',   icon:'🧪' },
+  { id:'scroll',  label:'Scroll',   icon:'📜' },
+  { id:'orb',     label:'Orb',      icon:'🔮' },
+  { id:'rod',     label:'Rod',      icon:'🪄' },
+  { id:'tome',    label:'Tome',     icon:'📖' },
+  { id:'gem',     label:'Gem',      icon:'💎' },
+  { id:'misc',    label:'Wondrous', icon:'✨' },
+  { id:'bag',     label:'Bag',      icon:'🎒' },
+  { id:'arrow',   label:'Arrow',    icon:'🏹' },
 ];
 
 const RARITIES = ['Common','Uncommon','Rare','Very Rare','Legendary','Artifact'];
@@ -618,7 +618,7 @@ function renderProperties() {
         <input type="text" value="${esc(prop.name)}" placeholder="Property name..."
           oninput="updatePropName(${prop.id},this.value)">
         <span class="prop-type-tag ${prop.type}" onclick="cycleType(${prop.id})">${prop.type.toUpperCase()}</span>
-        <button class="del-btn" onclick="deleteProperty(${prop.id})">âœ•</button>
+        <button class="del-btn" onclick="deleteProperty(${prop.id})">✕</button>
       </div>
       <textarea class="prop-desc" rows="2" placeholder="Describe this property..."
         oninput="updatePropDesc(${prop.id},this.value)">${esc(prop.desc)}</textarea>
@@ -952,8 +952,8 @@ function preloadSVGData() {
   loadSVGData('all');
 }
 
-function mGrad(id,m,v){const x2=v?'0':'1',y2=v?'1':'0';return<linearGradient id="" x1="0" y1="0" x2="" y2=""><stop offset="0%" stop-color=""/><stop offset="40%" stop-color=""/><stop offset="70%" stop-color=""/><stop offset="100%" stop-color=""/></linearGradient>;}
-function gFilter(id,col,r){return<filter id="" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="" result="blur"/><feFlood flood-color="" flood-opacity="0.65" result="color"/><feComposite in="color" in2="blur" operator="in" result="glow"/><feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge></filter>;}
+function mGrad(id,m,v){const x2=v?'0':'1',y2=v?'1':'0';return`<linearGradient id="${id}" x1="0" y1="0" x2="${x2}" y2="${y2}"><stop offset="0%" stop-color="${m.dark}"/><stop offset="40%" stop-color="${m.light}"/><stop offset="70%" stop-color="${m.mid}"/><stop offset="100%" stop-color="${m.dark}"/></linearGradient>`;}
+function gFilter(id,col,r){return`<filter id="${id}" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="${r}" result="blur"/><feFlood flood-color="${col}" flood-opacity="0.65" result="color"/><feComposite in="color" in2="blur" operator="in" result="glow"/><feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`;}
 
 const VISUAL_COMPONENTS={
   weapon:[{id:'aura',label:'Aura',list:AURAS,clr:true},{id:'blade',label:'Blade',list:BLADES},{id:'guard',label:'Guard',list:GUARDS},{id:'grip',label:'Grip',list:GRIPS},{id:'pommel',label:'Pommel',list:POMMELS},{id:'metal',label:'Metal',list:METALS,clr:true}],

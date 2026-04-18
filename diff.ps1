@@ -1,0 +1,1 @@
+git diff --no-index "C:\Users\Thorn\.openclaw\workspace\temp_initial_script.txt" "C:\Users\Thorn\.openclaw\workspace\temp_current_script.txt" 2>`$null | Out-File -FilePath "C:\Users\Thorn\.openclaw\workspace\temp_script_diff.txt" -Encoding utf8
