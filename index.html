@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Arcane Forge">
-<meta name="description" content="Craft magical items for D&D — weapons, rings, potions and more.">
+<meta name="description" content="Craft magical items for D&D â€” weapons, rings, potions and more.">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <title>Arcane Forge</title>
@@ -55,22 +55,22 @@
   <div class="panels-wrap">
   <div class="panels-track" id="panels-track">
 
-    <!-- ── BUILD ── -->
+    <!-- â”€â”€ BUILD â”€â”€ -->
     <div class="panel active" id="panel-build">
 
       <!-- Identity -->
       <div class="card">
         <div class="card-head" onclick="toggleCard(this)">
-          <span class="card-head-icon">✦</span>
+          <span class="card-head-icon">âœ¦</span>
           <span class="card-head-title">Item Identity</span>
-          <span class="card-chevron">▾</span>
+          <span class="card-chevron">â–¾</span>
         </div>
         <div class="card-body">
           <div class="field">
             <span class="field-label">Item Name</span>
             <div class="name-row">
               <input type="text" id="itemName" placeholder="e.g. Flamebrand of the Fallen King" oninput="updateCardDebounced()">
-              <button class="btn btn-outline btn-sm" onclick="generateName()">🎲</button>
+              <button class="btn btn-outline btn-sm" onclick="generateName()">ðŸŽ²</button>
             </div>
           </div>
           <div class="row-2">
@@ -89,9 +89,9 @@
       <!-- Type -->
       <div class="card">
         <div class="card-head" onclick="toggleCard(this)">
-          <span class="card-head-icon">⚔</span>
+          <span class="card-head-icon">⚔️</span>
           <span class="card-head-title">Item Type</span>
-          <span class="card-chevron">▾</span>
+          <span class="card-chevron">â–¾</span>
         </div>
         <div class="card-body">
           <div class="type-grid" id="typeGrid"></div>
@@ -164,9 +164,9 @@
       <!-- Rarity -->
       <div class="card">
         <div class="card-head" onclick="toggleCard(this)">
-          <span class="card-head-icon">✦</span>
+          <span class="card-head-icon">âœ¦</span>
           <span class="card-head-title">Rarity & Attunement</span>
-          <span class="card-chevron">▾</span>
+          <span class="card-chevron">â–¾</span>
         </div>
         <div class="card-body">
           <div class="field">
@@ -188,14 +188,14 @@
 
     </div><!-- /panel-build -->
 
-    <!-- ── POWERS ── -->
+    <!-- â”€â”€ POWERS â”€â”€ -->
     <div class="panel" id="panel-powers">
 
       <div class="card">
         <div class="card-head" onclick="toggleCard(this)">
           <span class="card-head-icon">✨</span>
           <span class="card-head-title">Magical Properties</span>
-          <span class="card-chevron">▾</span>
+          <span class="card-chevron">â–¾</span>
         </div>
         <div class="card-body">
           <div class="props-list" id="propertiesList"></div>
@@ -207,7 +207,7 @@
         <div class="card-head" onclick="toggleCard(this)">
           <span class="card-head-icon">⚡</span>
           <span class="card-head-title">Quick Suggestions</span>
-          <span class="card-chevron">▾</span>
+          <span class="card-chevron">â–¾</span>
         </div>
         <div class="card-body">
           <div class="suggestions" id="suggestions"></div>
@@ -216,14 +216,14 @@
 
     </div><!-- /panel-powers -->
 
-    <!-- ── VISUAL ── -->
+    <!-- â”€â”€ VISUAL â”€â”€ -->
     <div class="panel" id="panel-visual">
 
       <div class="card">
         <div class="card-head" onclick="toggleCard(this)">
           <span class="card-head-icon">🎨</span>
           <span class="card-head-title">Visual Appearance</span>
-          <span class="card-chevron">▾</span>
+          <span class="card-chevron">â–¾</span>
         </div>
         <div class="card-body">
           <div class="visual-canvas-wrap">
@@ -235,14 +235,14 @@
 
     </div><!-- /panel-visual -->
 
-    <!-- ── LORE ── -->
+    <!-- â”€â”€ LORE â”€â”€ -->
     <div class="panel" id="panel-lore">
 
       <div class="card">
         <div class="card-head" onclick="toggleCard(this)">
           <span class="card-head-icon">📜</span>
           <span class="card-head-title">Description & Lore</span>
-          <span class="card-chevron">▾</span>
+          <span class="card-chevron">â–¾</span>
         </div>
         <div class="card-body">
           <div class="field">
@@ -251,7 +251,7 @@
           </div>
           <div class="field">
             <span class="field-label">History & Lore</span>
-            <textarea id="itemLore" rows="4" placeholder="The legend behind this item — its creator, past wielders..." oninput="updateCardDebounced()"></textarea>
+            <textarea id="itemLore" rows="4" placeholder="The legend behind this item â€” its creator, past wielders..." oninput="updateCardDebounced()"></textarea>
           </div>
           <div class="field">
             <span class="field-label">Curse (if any)</span>
@@ -262,7 +262,7 @@
 
     </div><!-- /panel-lore -->
 
-    <!-- ── PREVIEW ── -->
+    <!-- â”€â”€ PREVIEW â”€â”€ -->
     <div class="panel" id="panel-preview">
 
       <!-- Item Card -->
@@ -307,7 +307,7 @@
   </div><!-- /panels-track -->
   </div><!-- /panels-wrap -->
 
-  <!-- ══════════════════════════════════════════════
+  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
        AD BANNER
        Once your AdSense account is approved:
        1. Add this in <head>:
@@ -318,10 +318,10 @@
                data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
                data-ad-slot="XXXXXXXXXX"></ins>
           <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-       ══════════════════════════════════════════════ -->
+       â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
   <div class="ad-banner" id="adBanner">
     <span class="ad-label">Advertisement</span>
-    <div class="ad-placeholder">Ad space · 320 × 50</div>
+    <div class="ad-placeholder">Ad space Â· 320 Ã— 50</div>
   </div>
 
   <!-- BOTTOM NAV -->
@@ -345,46 +345,46 @@
 
 </div><!-- /app-shell -->
 
-<!-- ── ONBOARDING MODAL (first launch only) ── -->
+<!-- â”€â”€ ONBOARDING MODAL (first launch only) â”€â”€ -->
 <div class="onboard-backdrop" id="onboardBackdrop">
   <div class="onboard-sheet">
-    <div class="onboard-logo">⚒️</div>
+    <div class="onboard-logo">âš—ï¸</div>
     <div class="onboard-title">Arcane Forge</div>
     <div class="onboard-sub">Craft legendary magical items for your D&amp;D campaign</div>
     <div class="onboard-tips">
       <div class="onboard-tip">
-        <div class="onboard-tip-icon">🎲</div>
+        <div class="onboard-tip-icon">ðŸŽ²</div>
         <div class="onboard-tip-text">
           <div class="onboard-tip-title">Need Inspiration?</div>
-          <div class="onboard-tip-desc">Tap the dice button to instantly generate a complete random magical item — name, powers, lore, and artwork.</div>
+          <div class="onboard-tip-desc">Tap the dice button to instantly generate a complete random magical item â€” name, powers, lore, and artwork.</div>
         </div>
       </div>
       <div class="onboard-tip">
-        <div class="onboard-tip-icon">⚔️</div>
+        <div class="onboard-tip-icon">âš”ï¸</div>
         <div class="onboard-tip-text">
           <div class="onboard-tip-title">Build From Scratch</div>
-          <div class="onboard-tip-desc">Use the five tabs to craft every detail — type, powers, appearance, lore, and a shareable item card.</div>
+          <div class="onboard-tip-desc">Use the five tabs to craft every detail â€” type, powers, appearance, lore, and a shareable item card.</div>
         </div>
       </div>
       <div class="onboard-tip">
-        <div class="onboard-tip-icon">📖</div>
+        <div class="onboard-tip-icon">ðŸ“š</div>
         <div class="onboard-tip-text">
           <div class="onboard-tip-title">Save Your Collection</div>
-          <div class="onboard-tip-desc">Tap the book icon to save items to your library and load them anytime — even offline.</div>
+          <div class="onboard-tip-desc">Tap the book icon to save items to your library and load them anytime â€” even offline.</div>
         </div>
       </div>
     </div>
-    <button class="onboard-btn" onclick="dismissOnboarding()">Begin Forging ⚔️</button>
+    <button class="onboard-btn" onclick="dismissOnboarding()">Begin Forging âš”ï¸</button>
   </div>
 </div>
 
-<!-- ── LIBRARY BOTTOM SHEET ── -->
+<!-- â”€â”€ LIBRARY BOTTOM SHEET â”€â”€ -->
 <div class="sheet-backdrop" id="libraryBackdrop" onclick="closeLibrary()"></div>
 <div class="bottom-sheet" id="librarySheet">
   <div class="sheet-handle"></div>
   <div class="sheet-header">
-    <span class="sheet-title">📖 My Items</span>
-    <button class="sheet-save-btn" onclick="saveToLibrary()">💾 Save Current</button>
+    <span class="sheet-title">ðŸ“š My Items</span>
+    <button class="sheet-save-btn" onclick="saveToLibrary()">ðŸ’¾ Save Current</button>
   </div>
   <div class="sheet-body" id="libraryList">
     <div class="sheet-empty">No saved items yet.<br>Tap "Save Current" to save this item.</div>
@@ -394,9 +394,9 @@
 <div class="toast" id="toast"></div>
 
 <script>
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // NAVIGATION
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const PANEL_ORDER = ['build', 'powers', 'visual', 'lore', 'preview'];
 function switchTab(name) {
   if (!PANEL_ORDER.includes(name)) return;
@@ -430,30 +430,30 @@ function toggleCard(head) {
   head.closest('.card').classList.toggle('collapsed');
 }
 
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // DATA
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const ITEM_TYPES = [
-  { id:'weapon',  label:'Weapon',   icon:'🛠️' },
+  { id:'weapon',  label:'Weapon',   icon:'âš”ï¸' },
   { id:'armor',   label:'Armor',    icon:`<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l2.5 4v5c0 4-2.5 7.5-5.5 8.5-3-1-5.5-4.5-5.5-8.5V7z"/><path d="M5.5 7c-2 1-2.5 3-1.5 5"/><path d="M18.5 7c2 1 2.5 3 1.5 5"/><path d="M9.5 4c.5-.8 4.5-.8 5 0" stroke-width="1.2" opacity=".7"/></svg>` },
-  { id:'wand',    label:'Wand',     icon:'🪄' },
+  { id:'wand',    label:'Wand',     icon:'ðŸª„' },
   { id:'staff',   label:'Staff',    icon:`<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 21.5c2-4 5.5-9 10-16"/><ellipse cx="17" cy="4" rx="2.2" ry="1.4" fill="currentColor" stroke="none"/><path d="M8.5 17.5c.5-.9 1.8-.6 1.4.8" stroke-width="1.3"/><path d="M11.5 12c.5-.9 1.8-.6 1.4.8" stroke-width="1.3"/></svg>` },
-  { id:'ring',    label:'Ring',     icon:'💍' },
-  { id:'amulet',  label:'Amulet',   icon:'📿' },
-  { id:'cloak',   label:'Cloak',    icon:'🧣' },
-  { id:'boots',   label:'Boots',    icon:'👢' },
-  { id:'gloves',  label:'Gloves',   icon:'🧤' },
+  { id:'ring',    label:'Ring',     icon:'ðŸ’' },
+  { id:'amulet',  label:'Amulet',   icon:'ðŸ“¿' },
+  { id:'cloak',   label:'Cloak',    icon:'ðŸª½' },
+  { id:'boots',   label:'Boots',    icon:'ðŸ‘¢' },
+  { id:'gloves',  label:'Gloves',   icon:'ðŸ§¤' },
   { id:'helmet',  label:'Helmet',   icon:`<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13V9a7 7 0 0 1 14 0v4"/><path d="M4 13h16v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-5z"/><line x1="7" y1="16.5" x2="17" y2="16.5"/><line x1="4" y1="13" x2="20" y2="13"/></svg>` },
-  { id:'shield',  label:'Shield',   icon:'🛡️' },
-  { id:'potion',  label:'Potion',   icon:'🧪' },
-  { id:'scroll',  label:'Scroll',   icon:'📜' },
-  { id:'orb',     label:'Orb',      icon:'🔮' },
-  { id:'rod',     label:'Rod',      icon:'🪄' },
-  { id:'tome',    label:'Tome',     icon:'📜' },
-  { id:'gem',     label:'Gem',      icon:'💎' },
-  { id:'misc',    label:'Wondrous', icon:'✨' },
-  { id:'bag',     label:'Bag',      icon:'🎒' },
-  { id:'arrow',   label:'Arrow',    icon:'🏹' },
+  { id:'shield',  label:'Shield',   icon:'ðŸ›¡' },
+  { id:'potion',  label:'Potion',   icon:'âš—ï¸' },
+  { id:'scroll',  label:'Scroll',   icon:'ðŸ“œ' },
+  { id:'orb',     label:'Orb',      icon:'ðŸ”®' },
+  { id:'rod',     label:'Rod',      icon:'ðŸªˆ' },
+  { id:'tome',    label:'Tome',     icon:'ðŸ“–' },
+  { id:'gem',     label:'Gem',      icon:'ðŸ’Ž' },
+  { id:'misc',    label:'Wondrous', icon:'âœ¨' },
+  { id:'bag',     label:'Bag',      icon:'ðŸŽ’' },
+  { id:'arrow',   label:'Arrow',    icon:'ðŸ¹' },
 ];
 
 const RARITIES = ['Common','Uncommon','Rare','Very Rare','Legendary','Artifact'];
@@ -487,15 +487,15 @@ const LORE_TEMPLATES = [
 ];
 const CREATORS = ['Moradin the All-Father','the archmage Valdris Sorn','the witch Eyra of the Black Moon','the dwarven smith Dolgrin Ironweave','an unknown elven artificer','the lich Seraveth'];
 
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // STATE
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 let state = { type:'misc', rarity:'Rare', attune:false, properties:[], visual:{} };
 let propIdCounter = 0;
 
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // INIT
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function init() {
   // Type grid
   const grid = document.getElementById('typeGrid');
@@ -544,7 +544,7 @@ function init() {
   // Show onboarding on first ever launch
   try {
     if (!localStorage.getItem('arcane-forge-onboarded')) showOnboarding();
-  } catch(e) { /* storage blocked — skip onboarding */ }
+  } catch(e) { /* storage blocked â€” skip onboarding */ }
 
   // Responsive layout: on wide screens, ensure powers tab is active in the middle column
   if (window.matchMedia('(min-width: 768px)').matches) {
@@ -554,9 +554,9 @@ function init() {
     if (powersTab) powersTab.classList.add('active');
   }}
 
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // TYPE & RARITY
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function selectType(id) {
   state.type = id;
   document.querySelectorAll('.type-btn').forEach(b => b.classList.toggle('active', b.dataset.type === id));
@@ -579,9 +579,9 @@ function toggleAttune() {
   updateCard();
 }
 
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // PROPERTIES
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function addProperty(name='', desc='', type='passive', charges=3, recharge='Dawn') {
   const id = ++propIdCounter;
   state.properties.push({ id, name, desc, type, charges, recharge });
@@ -618,7 +618,7 @@ function renderProperties() {
         <input type="text" value="${esc(prop.name)}" placeholder="Property name..."
           oninput="updatePropName(${prop.id},this.value)">
         <span class="prop-type-tag ${prop.type}" onclick="cycleType(${prop.id})">${prop.type.toUpperCase()}</span>
-        <button class="del-btn" onclick="deleteProperty(${prop.id})">✕</button>
+        <button class="del-btn" onclick="deleteProperty(${prop.id})">âœ•</button>
       </div>
       <textarea class="prop-desc" rows="2" placeholder="Describe this property..."
         oninput="updatePropDesc(${prop.id},this.value)">${esc(prop.desc)}</textarea>
@@ -636,9 +636,9 @@ function renderProperties() {
   });
 }
 
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // CARD UPDATE
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function getTypeInfo() { return ITEM_TYPES.find(t=>t.id===state.type)||ITEM_TYPES[ITEM_TYPES.length-1]; }
 
 function getSubtitle() {
@@ -678,7 +678,7 @@ function buildStats() {
   return stats;
 }
 
-// Debounced version for text input handlers — avoids re-rendering on every keystroke
+// Debounced version for text input handlers â€” avoids re-rendering on every keystroke
 let _updateCardTimer;
 function updateCardDebounced() {
   clearTimeout(_updateCardTimer);
@@ -803,9 +803,9 @@ function updateSummary(name, ti, stats, curse) {
   if (curse) addChip('curse', '\u26A0 Cursed');
 }
 
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // RANDOM
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function generateName() {
   const pre = NAME_PREFIXES[Math.floor(Math.random()*NAME_PREFIXES.length)];
   const mid = NAME_MIDDLES[Math.floor(Math.random()*NAME_MIDDLES.length)];
@@ -841,7 +841,7 @@ function randomizeItem() {
   initVisual(type.id);
 
   renderProperties(); updateCard();
-  showToast('✨ Item randomized!');
+  showToast('âœ¨ Item randomized!');
 }
 
 function resetForm() {
@@ -856,9 +856,9 @@ function resetForm() {
   showToast('Form reset');
 }
 
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // EXPORT
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function buildExportText() {
   const name=document.getElementById('itemName').value.trim()||'Unnamed Item';
   const creator=document.getElementById('itemCreator').value.trim();
@@ -868,20 +868,20 @@ function buildExportText() {
   const curse=document.getElementById('itemCurse').value.trim();
   const atCls=document.getElementById('attuneClass').value.trim();
   const stats=buildStats();
-  let out=`════════════════════════════\n  ${name.toUpperCase()}\n════════════════════════════\n`;
+  let out=`â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•\n  ${name.toUpperCase()}\nâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•\n`;
   out+=`${getSubtitle()}, ${state.rarity}\n`;
   if(state.attune) out+=`Requires Attunement${atCls?' '+atCls:''}\n`;
   if(stats.length) out+='\n'+stats.map(s=>`${s.lbl}: ${s.val}`).join('  |  ')+'\n';
   out+='\n';
   state.properties.forEach(p=>{
-    out+=`[${p.name||'Property'} — ${p.type.toUpperCase()}${p.type==='charges'?` (${p.charges} charges, ${p.recharge})` :''}]\n${p.desc}\n\n`;
+    out+=`[${p.name||'Property'} â€” ${p.type.toUpperCase()}${p.type==='charges'?` (${p.charges} charges, ${p.recharge})` :''}]\n${p.desc}\n\n`;
   });
   if(desc) out+=`APPEARANCE\n${desc}\n\n`;
   if(lore) out+=`LORE\n"${lore}"\n\n`;
   if(curse) out+=`CURSE\n${curse}\n\n`;
   if(creator) out+=`Creator: ${creator}\n`;
   if(value)   out+=`Value: ${value}\n`;
-  out+='════════════════════════════';
+  out+='â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•';
   return out;
 }
 
@@ -895,7 +895,7 @@ async function shareItem() {
 }
 
 function copyToClipboard() {
-  navigator.clipboard.writeText(buildExportText()).then(()=>showToast('📋 Copied!')).catch(()=>showToast('Copy failed'));
+  navigator.clipboard.writeText(buildExportText()).then(()=>showToast('ðŸ“‹ Copied!')).catch(()=>showToast('Copy failed'));
 }
 
 function downloadTxt() {
@@ -903,12 +903,12 @@ function downloadTxt() {
   const a=document.createElement('a');
   a.href='data:text/plain;charset=utf-8,'+encodeURIComponent(buildExportText());
   a.download=name+'.txt'; a.click();
-  showToast('⬇ Downloaded!');
+  showToast('â¬‡ Downloaded!');
 }
 
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // UTILS
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function showToast(msg){
   const t=document.getElementById('toast');
@@ -916,9 +916,9 @@ function showToast(msg){
   setTimeout(()=>t.classList.remove('show'),2000);
 }
 
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // VISUAL SYSTEM
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // SVG data arrays — populated on first access via loadSVGData()
 // See svg-data.js for the actual array contents
 let METALS=[]; let AURAS=[]; let BLADES=[]; let GUARDS=[]; let GRIPS=[]; let POMMELS=[];
@@ -1113,9 +1113,9 @@ function _renderVisual(type){
   }
 }
 
-// ─────────────────────────────────────────────────────────────
-// PERSISTENCE — localStorage auto-save + named library
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// PERSISTENCE â€” localStorage auto-save + named library
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const AUTOSAVE_KEY = 'arcane-forge-autosave';
 const LIBRARY_KEY  = 'arcane-forge-library';
 
@@ -1142,7 +1142,7 @@ function restoreState(s) {
   state.type = s.type || 'misc';
   state.rarity = s.rarity || 'Rare';
   state.attune = !!s.attune;
-  state.properties = (s.properties || []).map(p => ({...p})); // deep copy — prevent library corruption
+  state.properties = (s.properties || []).map(p => ({...p})); // deep copy â€” prevent library corruption
   state.visual = JSON.parse(JSON.stringify(s.visual || {}));  // deep copy visual state
   propIdCounter = (s.propIdCounter != null) ? s.propIdCounter : 0; // fix falsy 0 bug
   // Restore form fields
@@ -1163,7 +1163,7 @@ function restoreState(s) {
   document.getElementById('potionFields').classList.toggle('visible', state.type === 'potion');
   document.querySelectorAll('.rarity-btn').forEach(b => b.classList.toggle('active', b.dataset.rarity === state.rarity));
   renderProperties();
-  // initVisual re-renders pickers + canvas using the restored state.visual — order matters
+  // initVisual re-renders pickers + canvas using the restored state.visual â€” order matters
   initVisual(state.type);
   // Explicitly refresh the card art area so the saved visual shows on the Preview tab
   // Card art is already rendered by initVisual() above
@@ -1176,13 +1176,13 @@ function autoSave() {
   try {
     localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(captureState()));
   } catch(e) {
-    if (e.name === 'QuotaExceededError') showToast('⚠️ Storage full — clear library to save');
+    if (e.name === 'QuotaExceededError') showToast('âš ï¸ Storage full â€” clear library to save');
   }
 }
 
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // LIBRARY
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function getLibrary() {
   try { return JSON.parse(localStorage.getItem(LIBRARY_KEY) || '[]'); } catch(e) { return []; }
 }
@@ -1190,7 +1190,7 @@ function saveLibrary(lib) {
   try {
     localStorage.setItem(LIBRARY_KEY, JSON.stringify(lib));
   } catch(e) {
-    if (e.name === 'QuotaExceededError') showToast('⚠️ Storage full — delete some items');
+    if (e.name === 'QuotaExceededError') showToast('âš ï¸ Storage full â€” delete some items');
   }
 }
 
@@ -1199,7 +1199,7 @@ function saveToLibrary() {
   const rawName = document.getElementById('itemName').value.trim();
   // Warn if item is basically empty
   if (!rawName && !state.properties.length) {
-    showToast('⚠️ Add a name or properties first');
+    showToast('âš ï¸ Add a name or properties first');
     return;
   }
   const name = rawName || 'Unnamed Item';
@@ -1216,7 +1216,7 @@ function saveToLibrary() {
   saveLibrary(lib);
   renderLibrary();
   if (navigator.vibrate) navigator.vibrate([10,40,10]);
-  showToast('💾 Saved to My Items!');
+  showToast('ðŸ’¾ Saved to My Items!');
 }
 
 function loadFromLibrary(id) {
@@ -1225,7 +1225,7 @@ function loadFromLibrary(id) {
   restoreState(item.data);
   closeLibrary();
   switchTab('preview');
-  showToast('✅ Item loaded!');
+  showToast('âœ… Item loaded!');
 }
 
 function deleteFromLibrary(id) {
@@ -1273,9 +1273,9 @@ function renderLibrary() {
   });
 }
 
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // ONBOARDING
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function showOnboarding() {
   const el = document.getElementById('onboardBackdrop');
   if (el) requestAnimationFrame(() => el.classList.add('open'));
@@ -1298,13 +1298,13 @@ function closeLibrary() {
   document.getElementById('librarySheet').classList.remove('open');
 }
 
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // IMAGE EXPORT
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function exportAsImage() {
   const btn = document.getElementById('btnShareImg');
   btn.classList.add('loading');
-  btn.textContent = '⏳ Rendering…';
+  btn.textContent = 'â³ Renderingâ€¦';
 
   try {
     const h2c = await loadHtml2Canvas();
@@ -1312,7 +1312,7 @@ async function exportAsImage() {
 
     // Ensure preview tab is active so card is fully visible in the DOM
     switchTab('preview');
-    // Wait for CSS transition + layout reflow — rAF ensures paint, then 220ms for slow devices
+    // Wait for CSS transition + layout reflow â€” rAF ensures paint, then 220ms for slow devices
     await new Promise(r => requestAnimationFrame(() => setTimeout(r, 50)));
 
     const canvas = await h2c(card, {
@@ -1343,17 +1343,17 @@ async function exportAsImage() {
       } else {
         // Fallback: download the PNG
         downloadBlob(blob, safeName);
-        showToast('🖼️ Card saved as image!');
+        showToast('ðŸ–¼ï¸ Card saved as image!');
       }
     }, 'image/png');
 
   } catch(err) {
     console.error('Image export failed:', err);
-    showToast('Image export unavailable offline — try text share');
+    showToast('Image export unavailable offline â€” try text share');
     shareItem(); // graceful fallback to text
   } finally {
     btn.classList.remove('loading');
-    btn.textContent = '🖼️ Share Image';
+    btn.textContent = 'ðŸ–¼ï¸ Share Image';
   }
 }
 
@@ -1366,9 +1366,9 @@ function downloadBlob(blob, baseName) {
   setTimeout(() => URL.revokeObjectURL(url), 10000);
 }
 
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // BOOT
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 init();
 
 // Handle responsive layout transitions on resize
